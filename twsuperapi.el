@@ -1,32 +1,3 @@
-(provide 'twinterface)
-
-;; Direct API interfaces
-(defun twitter-refresh-timeline (since)
-  (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "refresh"))
-		   :parameters '("since" since)))
-
-(defun twitter-update-status (status)
-    (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "update"))
-		     :parameters '("status" status)))
-
-(defun twitter-destroy-status (status)
-    (twitter-request "DELETE" (twitter-url (format "%s/%s" "statuses" "destroy"))
-		     :parameters '("status" status)))
-
-(defun twitter-show-user (screen-name)
-    (twitter-request "GET" (twitter-url (format "%s/%s" "users" "show"))
-		     :parameters '("screen_name" screen-name)))
-
-(defun twitter-show-search (search-term)
-    (twitter-request "GET" (twitter-url (format "%s/%s" "users" "show"))
-		     :parameters '("search_term" search-term)))
-
-(defun twitter-show-followers ()
-  "Build a list of followers")
-
-(defun twitter-show-following ()
-  "Build a list of people you're following")
-
 ;; Extra interfaces
 (defun twitter-follow-user (username)
     (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "update"))
