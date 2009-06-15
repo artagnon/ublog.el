@@ -71,5 +71,20 @@
 ;; Saved Searches Methods
 
 ;; OAuth Methods
+(defun twitter-oauth-request-token ()
+    (twitter-request "GET" (twitter-url (format "%s/%s" "oauth" "request_token"))
+		     :parameters '()))
+
+(defun twitter-oauth-authorize ()
+    (twitter-request "GET" (twitter-url (format "%s/%s" "oauth" "authorize"))
+		     :parameters '()))
+
+(defun twitter-oauth-authenticate ()
+    (twitter-request "GET" (twitter-url (format "%s/%s" "oauth" "authenticate"))
+		     :parameters '()))
+
+(defun twitter-oauth-access-token ()
+    (twitter-request "POST" (twitter-url (format "%s/%s" "oauth" "access_token"))
+		     :parameters '()))
 
 ;; Help Methods
