@@ -3,8 +3,10 @@
 (require 'parse-twresponse)
 (require 'twhelper)
 (require 'twinterface)
+(require 'twhttp)
 
 (defvar twitter-host "twitter.com")
+(defvar twitter-search-host "search.twitter.com")
 (defvar twitter-port 80)
 (defvar twitter-user-agent "twitel")
 (defvar twitter-proxy-use nil)
@@ -49,11 +51,16 @@
   (set-process-sentinel twitel-proc twitel-proc-sentinel)
   (if (file-directory-p "~/.twitel")
       nil
-      (make-directory "~/.twitel")))
+      (make-directory "~/.twitel"))
 
-(defun twitter-url (&optional relative)
+(defun twitel-authenticate ()
+  "Twitter authentication interface. TODO: OAuth"
+  (interactive (list (read-from-minibuffer "Twitter username: " twitter-username)
+		     (read-from-minibuffer "Twitter password: " twitter-password)))))
+
+(defun twitter-url (&optional (search nil) relative)
   "Generate a Twitter URL with an optional relative"
-  (format "http://%s:%d/%s" twitter-host twitter-port (or relative "")))
+  (format "http://%s:%d/%s" (if search 'twitter-search-host 'twitter-host) twitter-port (or relative "")))
 
 (defun twitter-response ()
   "Parsing the Twitter response returned in JSON")
@@ -76,72 +83,3 @@
   "Use HTTP METHOD to request URL with some optional parameters"
   (process-send-string twitel-proc
 		       (concat http-method url (build-url-parameters parameters))))
-
-(defun twittering-http-post
-    (http-method url &optional parameters contents sentinel)
-  "Send HTTP POST request to twitter.com
-METHOD-CLASS must be one of Twitter API method classes
- (statuses, users or direct_messages).
-METHOD must be one of Twitter API method which belongs to METHOD-CLASS.
-PARAMETERS is alist of URI parameters.
- ex) ((\"mode\" . \"view\") (\"page\" . \"6\")) => <URI>?mode=view&page=6"
-
-  (if (null sentinel) (setq sentinel 'twittering-http-post-default-sentinel))
-
-  ;; clear the buffer
-  (save-excursion
-    (set-buffer (twittering-http-buffer))
-    (erase-buffer))
-
-  (let (proc server port
-             (proxy-user twittering-proxy-user)
-             (proxy-password twittering-proxy-password))
-    (progn
-      (if (twittering-proxy-use)
-          (setq server twittering-proxy-server
-                port (if (integerp twittering-proxy-port)
-                         (int-to-string twittering-proxy-port)
-                         twittering-proxy-port))
-          (setq server "twitter.com"
-                port "80"))
-      (setq proc
-            (open-network-stream
-             "network-connection-process" (twittering-http-buffer)
-             server (string-to-number port)))
-      (set-process-sentinel proc sentinel)
-      (process-send-string
-       proc
-       (let ((nl "\r\n")
-             request)
-         (setq  request
-                (concat "POST http://twitter.com/" method-class "/" method ".json"
-                        (when parameters
-                          (concat "?"
-                                  (mapconcat
-                                   (lambda (param-pair)
-                                     (format "%s=%s"
-                                             (twittering-percent-encode (car param-pair))
-                                             (twittering-percent-encode (cdr param-pair))))
-                                   parameters
-                                   "&")))
-                        " HTTP/1.1" nl
-                        "Host: twitter.com" nl
-                        "User-Agent: " (twittering-user-agent) nl
-                        "Authorization: Basic "
-                        (base64-encode-string
-                         (concat twittering-username ":" (twittering-get-password)))
-                        nl
-                        "Content-Type: text/plain" nl
-                        "Content-Length: 0" nl
-                        (when twittering-proxy-use
-                          "Proxy-Connection: Keep-Alive" nl
-                          (when (and proxy-user proxy-password)
-                            (concat
-                             "Proxy-Authorization: Basic "
-                             (base64-encode-string
-                              (concat proxy-user ":"
-                                      proxy-password))
-                             nl)))
-                        nl))
-         (debug-print (concat "POST Request\n" request))
-         request)))))
