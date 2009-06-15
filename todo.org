@@ -1,0 +1,14 @@
+* Structure
+** twapi.el for standard Twitter API interfaces: Need to complete
+** twsuperapi.el for additional interfaces: New ideas go here. Document well!
+** twhttp.el handles all HTTP communication- Most of it is ripped out from http-get.el and http-post.el
+** rewrite.el that binds together everything. Will be renamed later
+** twhelper.el for all commonly used misc macros. Will probably get rid of this later
+* The TODO priority list
+** Clean up and streamline the HTTP GET and POST interfaces in twhttp.el
+*** Rip out similar code from other files such as rewrite.el
+*** Drop http-cookies.el: Let's just use OAuth
+** Finish off twapi.el for the standard Twitter API interfaces
+** Write in authentication into rewrite.el using OAuth from twapi.el
+*** Finish this off asap for premature testing to work
+** Dump new ideas into twsuperapi.el
