@@ -1,4 +1,4 @@
-* Structure
+* Structure and file layout
 ** twapi.el for standard Twitter API interfaces: Need to complete
 ** twsuperapi.el for additional interfaces: New ideas go here. Document well!
 ** twhttp.el handles all HTTP communication- Most of it is ripped out from http-get.el and http-post.el
@@ -9,6 +9,18 @@
 *** Rip out similar code from other files such as rewrite.el
 *** Drop http-cookies.el: Let's just use OAuth
 ** Finish off twapi.el for the standard Twitter API interfaces
-** Write in authentication into rewrite.el using OAuth from twapi.el
+*** Especially the OAuth section for premature testing purposes
+** Write in authentication into twitel-authenticate() in rewrite.el using OAuth from twapi.el
 *** Finish this off asap for premature testing to work
+** Figure out how to parse json response using the standard json library. Write code into sentinel
 ** Dump new ideas into twsuperapi.el
+* Learning assignments
+** How does OAuth work?
+** Learn good structure from hober's projects, especially couchdb.el
+** How does json parsing work?
+** Become familiar with raw HTTP communication for GET and POST requests
+** Learn DP retreival from twittering-mode.el
+** How to make links "clickable"? It's a font property. Learn from twittering-mode.el
+** DP image caching
+** Caching Twitter timeline updates
+** Limiting number of API hits to maximum permitted in an hour using a timer
