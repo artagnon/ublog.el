@@ -19,6 +19,16 @@
     ("PUT" ("Content-type" . "application/json"))
     ("DELETE")))
 
+;; Twitter OAuth URLs
+(defvar twoauth-request-url "https://www.yammer.com/oauth/request_token")
+(defvar twoauth-access-url "https://www.yammer.com/oauth/access_token")
+(defvar twoauth-user-authorize "https://www.yammer.com/oauth/authorize")
+
+;; Twitter OAuth keys
+(defvar twoauth-consumer-key "K9vrCLHpp5vuln72ROufzQ")
+(defvar twoauth-consumer-secret "sUTgzZRgm0GCHQNYixFx3TS2D94TwaQv90gIXhTQNcE")
+(defvar twitel-token-path "/home/%s/.twitel-token")
+
 (defun twitel-network-buffer ()
   "The network buffer in which twitel-proc runs"
   (get-or-generate-buffer "*twitel-network-buffer*"))
@@ -51,12 +61,50 @@
   (set-process-sentinel twitel-proc twitel-proc-sentinel)
   (if (file-directory-p "~/.twitel")
       nil
-      (make-directory "~/.twitel"))
+      (make-directory "~/.twitel")))
 
 (defun twitel-authenticate ()
-  "Twitter authentication interface. TODO: OAuth"
-  (interactive (list (read-from-minibuffer "Twitter username: " twitter-username)
-		     (read-from-minibuffer "Twitter password: " twitter-password)))))
+  "Get authentication token"
+  (if (file-exists-p (twitel-token-path))
+      (progn
+        (save-excursion
+          (find-file (twitel-token-path)
+          (let ((str (buffer-substring (point-min) (point-max))))
+            (if (string-match "\\([^:]*\\):\\(.*\\)"
+                              (buffer-substring (point-min) (point-max)))
+                (setq twitel-access-token
+                      (make-oauth-access-token
+                       :consumer-key twitel-consumer-key
+                       :consumer-secret twitel-consumer-secret
+                       :auth-t (make-oauth-t
+                                :token (match-string 1 str)
+                                :token-secret (match-string 2 str))))))
+          (save-buffer)
+          (kill-this-buffer))))
+  (unless twitel-access-token
+    (let ((callback
+           (lambda ()
+             (let ((callback-token (read-string
+                                    "Please enter the provided code: ")))
+               (setq access-url
+                     (concat access-url "?callback_token=" callback-token))))))
+      (setq twitel-access-token
+            (oauth-authorize-app :consuer-key twitel-consumer-key
+				 :consumer-secret twitel-consumer-secret
+                                 :request-url twitel-request-url
+				 :access-url twitel-access-url
+                                 :authorize-url twitel-user-authorize
+                                 :access-callback callback)))
+    (save-excursion
+      (find-file (twitel-token-path))
+      (end-of-buffer)
+      (let ((token (oauth-access-token-auth-t twitel-access-token)))
+        (insert (format "%s:%s\n"
+                        (oauth-t-token token)
+                        (oauth-t-token-secret token))))
+      (save-buffer)
+      (kill-this-buffer)))
+  twitel-access-token)
 
 (defun twitter-url (&optional (search nil) relative)
   "Generate a Twitter URL with an optional relative"
