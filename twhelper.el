@@ -1,5 +1,9 @@
 (provide 'twhelper)
 
+(defmacro get-unix-time ()
+  (setq time-tuple (current-time))
+  (+ (* (expt 2 16) (car time-tuple)) (cadr time-tuple)))
+
 (defmacro get-or-generate-buffer (buffer)
   "Get an exisiting Emacs buffer or generate a new one"
     (if (bufferp buffer)
