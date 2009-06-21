@@ -1,5 +1,18 @@
 (provide 'twhelper)
 
+(defmacro case-string (str &rest clauses)
+  `(cond
+    ,@(mapcar
+       (lambda (clause)
+	 (let ((keylist (car clause))
+	       (body (cdr clause)))
+	   `(,(if (listp keylist)
+		  `(or ,@(mapcar (lambda (key) `(string-equal ,str ,key))
+				 keylist))
+		't)
+	     ,@body)))
+       clauses)))
+
 (defmacro get-or-generate-buffer (buffer)
   "Get an exisiting Emacs buffer or generate a new one"
     (if (bufferp buffer)
