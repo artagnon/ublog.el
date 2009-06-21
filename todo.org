@@ -1,35 +1,33 @@
+#+TODO: TODO IN-PROGRESS STUCK DEFERRED | DONE INVALID ABANDONED
+
 * Structure and file layout
 ** twapi.el for standard Twitter API interfaces: Need to complete
 ** twsuperapi.el for additional interfaces: New ideas go here. Document well!
 ** twhttp.el handles all HTTP communication- Most of it is ripped out from http-get.el and http-post.el
 ** rewrite.el that binds together everything. Will be renamed later
 ** twhelper.el for all commonly used misc macros. Will probably get rid of this later
+** oauth.el lifted from psanford's repo. Try not to edit
+** hmc-sha1 lifted from Derek Upham's repo. No need to edit
+** parse-twresponse.el contains code to map json response to user variables. Needs lots of work
+** twminors.el contains ideas for minor modes. Very long term goal - ?
 * The TODO priority list
-** Clean up and streamline the HTTP GET and POST interfaces in twhttp.el
+** IN-PROGRESS Unit test all the init functions and get OAuth authentication working [4/5]
+   - [X] twitel-init
+   - [ ] twitel-authenticate fails in db5bca8 [0/2]
+     - [ ] twitter-authorize-app fails in oauth.el:176
+     - [ ] oauth-fetch-token fails in oauth.el:309 with Error: Search failed
+   - [X] twitter, twitter-username, twitter-password :db5bca8
+   - [X] twitter-request :9626b49
+   - [X] twitter-url :9626b49
+** TODO Clean up and streamline the HTTP GET and POST interfaces in twhttp.el
 *** Rip out similar code from other files such as rewrite.el
-*** Drop http-cookies.el: Let's just use OAuth
-** Finish off twapi.el for the standard Twitter API interfaces
-*** Especially the OAuth section for premature testing purposes
-** Write in authentication into twitel-authenticate() in rewrite.el using OAuth from twapi.el
-*** Finish this off asap for premature testing to work
-** Figure out how to parse json response using the standard json library. Write code into sentinel
-** Dump new ideas into twsuperapi.el
+** TODO Finish off twapi.el for the standard Twitter API interfaces
+** TODO Parse json response using json-read-from-string in parse-twresponse.el. Hook to sentinel?
+** TODO Dump new ideas into twsuperapi.el
 * Learning assignments
-** How does OAuth work?
-** Learn good structure from hober's projects, especially couchdb.el
 ** Processing the output of json-read-from-string
-** Become familiar with raw HTTP communication for GET and POST requests
 ** Learn DP retreival from twittering-mode.el
 ** How to make links "clickable"? It's a font property. Learn from twittering-mode.el
 ** DP image caching
 ** Caching Twitter timeline updates
-** Limiting number of API hits to maximum permitted in an hour using a timer
-* Progress tracker
-** Unit testing
-*** twitel-init passes in db5bca802
-*** twitel-authenticate in db5bca802
-**** twitter-authorize-app fails in oauth.el:176
-***** oauth-fetch-token fails in oauth.el:309 with Error: Search failed
-*** twitter, twitter-username, twitter-password pass in db5bca802
-*** twitter-request fails in 9626b49
-*** twitter-url passes in 9626b49
+** Limiting number of API hits
