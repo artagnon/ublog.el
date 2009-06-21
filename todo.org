@@ -17,10 +17,19 @@
 * Learning assignments
 ** How does OAuth work?
 ** Learn good structure from hober's projects, especially couchdb.el
-** How does json parsing work?
+** Processing the output of json-read-from-string
 ** Become familiar with raw HTTP communication for GET and POST requests
 ** Learn DP retreival from twittering-mode.el
 ** How to make links "clickable"? It's a font property. Learn from twittering-mode.el
 ** DP image caching
 ** Caching Twitter timeline updates
 ** Limiting number of API hits to maximum permitted in an hour using a timer
+* Progress tracker
+** Unit testing
+*** twitel-init passes in db5bca802
+*** twitel-authenticate in db5bca802
+**** twitter-authorize-app fails in oauth.el:176
+***** oauth-fetch-token fails in oauth.el:309 with Error: Search failed
+*** twitter, twitter-username, twitter-password pass in db5bca802
+*** twitter-request fails in 9626b49
+*** twitter-url passes in 9626b49
