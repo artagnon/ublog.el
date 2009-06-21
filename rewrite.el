@@ -5,6 +5,7 @@
 (require 'twhttp)
 (require 'oauth)
 
+;; Configuration constants
 (defvar twitter-host "twitter.com")
 (defvar twitter-search-host "search.twitter.com")
 (defvar twitter-port 80)
@@ -18,6 +19,10 @@
     ("POST" ("Content-type" . "application/json"))
     ("PUT" ("Content-type" . "application/json"))
     ("DELETE")))
+
+;; Process objects
+(defvar twitel-proc nil)
+(defvar twitel-proc-sentinel nil)
 
 ;; Twitter OAuth URLs
 (defvar twitel-request-url "http://twitter.com/oauth/request_token")
@@ -58,8 +63,9 @@
         (setq status (match-string-no-properties 1 header))
         (case-string status
                      (("200 OK")
-                      (message (if success-message success-message "Success: Post")))
-                     (t (message status))))
+		      (message (if success-message success-message "Success: Post")))
+                     (t
+		      (message status))))
     (error (message (prin1-to-string err-signal)))))
 
 (defun twitel-init ()
@@ -125,7 +131,7 @@
 
 (defun twitter-url (&optional search-flag relative)
   "Generate a Twitter URL with an optional relative"
-  (format "http://%s:%d/%s" (if search-flag 'twitter-search-host 'twitter-host) twitter-port (or relative "")))
+  (format "http://%s:%d/%s" (if search-flag twitter-search-host twitter-host) twitter-port (or relative "")))
 
 (defun twitter-response (response)
   "Parsing the Twitter response returned in JSON"
@@ -149,7 +155,7 @@
 (defun twitter-request (http-method url &optional parameters)
   "Use HTTP METHOD to request URL with some optional parameters"
   (process-send-string twitel-proc
-                       (concat http-method url (build-url-parameters parameters))))
+                       (concat http-method url (if parameters (build-url-parameters parameters) nil))))
 
 ;; User interfaces
 
