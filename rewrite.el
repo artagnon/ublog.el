@@ -20,9 +20,9 @@
     ("DELETE")))
 
 ;; Twitter OAuth URLs
-(defvar twitel-request-url "https://www.yammer.com/oauth/request_token")
-(defvar twitel-access-url "https://www.yammer.com/oauth/access_token")
-(defvar twitel-user-authorize "https://www.yammer.com/oauth/authorize")
+(defvar twitel-request-url "http://twitter.com/oauth/request_token")
+(defvar twitel-access-url "http://twitter.com/oauth/access_token")
+(defvar twitel-user-authorize "http://twitter.com/oauth/authorize")
 
 ;; Twitter OAuth keys
 (defvar twitel-consumer-key "K9vrCLHpp5vuln72ROufzQ")
@@ -76,14 +76,13 @@
   (setq twitel-proc
         (open-network-stream
          "twitel-connection" (twitel-network-buffer) server port))
-  (set-process-sentinel twitel-proc twitel-proc-sentinel)
+  (set-process-sentinel twitel-proc 'twitel-proc-sentinel)
   (if (file-directory-p "~/.twitel")
       nil
       (make-directory "~/.twitel")))
 
 (defun twitel-authenticate ()
   "Get authentication token"
-  (interactive)
   (if (file-exists-p twitel-token-path)
       (progn
         (save-excursion
@@ -108,12 +107,11 @@
                    (setq access-url
                          (concat access-url "?callback_token=" callback-token))))))
           (setq twitel-access-token
-                (oauth-authorize-app :consuer-key twitel-consumer-key
-                                     :consumer-secret twitel-consumer-secret
-                                     :request-url twitel-request-url
-                                     :access-url twitel-access-url
-                                     :authorize-url twitel-user-authorize
-                                     :access-callback callback)))
+                (oauth-authorize-app twitel-consumer-key
+                                     twitel-consumer-secret
+                                     twitel-request-url
+                                     twitel-access-url
+                                     twitel-user-authorize)))
         (save-excursion
           (find-file (twitel-token-path))
           (end-of-buffer)
@@ -125,12 +123,14 @@
           (kill-this-buffer)))
       twitel-access-token))
 
-(defun twitter-url (&optional (search nil) relative)
+(defun twitter-url (&optional search-flag relative)
   "Generate a Twitter URL with an optional relative"
-  (format "http://%s:%d/%s" (if search 'twitter-search-host 'twitter-host) twitter-port (or relative "")))
+  (format "http://%s:%d/%s" (if search-flag 'twitter-search-host 'twitter-host) twitter-port (or relative "")))
 
-(defun twitter-response ()
-  "Parsing the Twitter response returned in JSON")
+(defun twitter-response (response)
+  "Parsing the Twitter response returned in JSON"
+  (let ((response-struct (json-read-from-string response)))
+    (progn)))
 
 (defun url-percent-encode (str &optional coding-system)
   (if (or (null coding-system)
