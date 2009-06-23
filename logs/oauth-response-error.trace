@@ -1,0 +1,22 @@
+HTTP/1.1 401 Unauthorized
+Date: Tue, 23 Jun 2009 20:58:08 GMT
+Server: hi
+Last-Modified: Tue, 23 Jun 2009 20:58:09 GMT
+WWW-Authenticate: Basic realm="Twitter API"
+Status: 401 Unauthorized
+Pragma: no-cache
+Cache-Control: no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+Content-Type: text/html; charset=utf-8
+Content-Length: 145
+Expires: Tue, 31 Mar 1981 05:00:00 GMT
+X-Revision: 1c036f68cd438abd9cc11825657c126abe55756e
+X-Transaction: 1245790689-58175-24230
+Set-Cookie: _twitter_sess=BAh7BzoHaWQiJTdiNTQwMjkyZGYxMTYxZjZhZWQ4ZTU4YjYyODc2MmJiIgpm%250AbGFzaElDOidBY3Rpb25Db250cm9sbGVyOjpGbGFzaDo6Rmxhc2hIYXNoewAG%250AOgpAdXNlZHsA--6e9336d23a420fb41f0b95e197bb71f5c78b2098; domain=.twitter.com; path=/
+Vary: Accept-Encoding
+Connection: close
+
+<?xml version="1.0" encoding="UTF-8"?>
+<hash>
+  <request>/oauth/access_token</request>
+  <error>Invalid oauth_verifier parameter</error>
+</hash>

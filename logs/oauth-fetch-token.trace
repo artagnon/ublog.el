@@ -1,0 +1,20 @@
+:{ edebug-anon1 args: (oauth_token=esPQU3TEnu6eKStauW0za1iDVMhLpcS9thE25jV0w)
+:} edebug-anon1 result: (oauth_token esPQU3TEnu6eKStauW0za1iDVMhLpcS9thE25jV0w)
+:{ edebug-anon1 args: (oauth_token_secret=USSDjxUzygq2xamHLpJkEbp1XteWHwy17KsKFcTreI)
+:} edebug-anon1 result: (oauth_token_secret USSDjxUzygq2xamHLpJkEbp1XteWHwy17KsKFcTreI)
+:{ edebug-anon1 args: (oauth_callback_confirmed=true)
+:} edebug-anon1 result: (oauth_callback_confirmed true)
+} oauth-fetch-token result: [cl-struct-oauth-t esPQU3TEnu6eKStauW0za1iDVMhLpcS9thE25jV0w USSDjxUzygq2xamHLpJkEbp1XteWHwy17KsKFcTreI]
+{ oauth-fetch-token args: (
+  [cl-struct-oauth-request (
+  			   (oauth_signature . OgPGsUI++9uEKroVpSwhed+c40I=)
+			   (oauth_token . esPQU3TEnu6eKStauW0za1iDVMhLpcS9thE25jV0w)
+			   (oauth_signature_method . HMAC-SHA1)
+			   (oauth_consumer_key . K9vrCLHpp5vuln72ROufzQ)
+			   (oauth_timestamp . 1245788929)
+			   (oauth_nonce . ocselmnymy7ylmny)
+			   (oauth_version . 1.0))
+  [cl-struct-oauth-t
+  		     esPQU3TEnu6eKStauW0za1iDVMhLpcS9thE25jV0w
+		     USSDjxUzygq2xamHLpJkEbp1XteWHwy17KsKFcTreI]
+  http://twitter.com/oauth/access_token GET])
