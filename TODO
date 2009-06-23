@@ -1,3 +1,4 @@
+-*- mode: Org -*-
 #+TODO: TODO IN-PROGRESS STUCK DEFERRED | DONE INVALID ABANDONED
 
 * Structure and file layout
@@ -7,12 +8,12 @@
 ** rewrite.el that binds together everything. Will be renamed later
 ** twhelper.el for all commonly used misc macros. Will probably get rid of this later
 ** oauth.el lifted from psanford's repo. Try not to edit
-** hmc-sha1 lifted from Derek Upham's repo. No need to edit
+** hmc-sha1.el lifted from Derek Upham's repo. No need to edit
 ** parse-twresponse.el contains code to map json response to user variables. Needs lots of work
 ** twminors.el contains ideas for minor modes. Very long term goal - ?
 * The TODO priority list
 ** IN-PROGRESS Unit test all the init functions and get OAuth authentication working [4/5]
-   - [X] twitel-init
+   - [X] twitel-init :db5bca8
    - [ ] twitel-authenticate fails in db5bca8 [0/2]
      - [ ] twitter-authorize-app fails in oauth.el:176
      - [ ] oauth-fetch-token fails in oauth.el:309 with Error: Search failed
