@@ -35,21 +35,7 @@
 
 (defvar twitel-access-token nil)
 ;; TODO: artagnon cannot be hardcoded here!
-(defvar twitel-token-path "/home/artagnon/.twitel-token")
-
-;; Emacs configuration group for authentication information
-(defgroup twitel nil "Authentication information for twitel"
-          :group 'applications)
-
-(defcustom twitter-username nil
-  "Username to use for connecting to Twitter"
-  :type '(choice (const :tag "Ask" nil) (string))
-  :group 'twitel)
-
-(defcustom twitter-password nil
-  "Password to use for connecting to Twitter"
-  :type '(choice (const :tag "Ask" nil) (string))
-  :group 'twitel)
+(defvar twitel-token-file "/home/artagnon/.twitel/token")
 
 (defun twitel-network-buffer ()
   "The network buffer in which twitel-proc runs"
@@ -89,14 +75,17 @@
 
 (defun twitel-authenticate ()
   "Get authentication token"
-  (if (file-exists-p twitel-token-path)
+  (if (file-exists-p twitel-token-file)
+      ;; Enter this only after authenticating the first time
       (progn
         (save-excursion
-          (find-file (twitel-token-path)
+          (find-file (twitel-token-file)
+		     ;; Read file to get `acess token'
                      (let ((str (buffer-substring (point-min) (point-max))))
                        (if (string-match "\\([^:]*\\):\\(.*\\)"
                                          (buffer-substring (point-min) (point-max)))
                            (setq twitel-access-token
+				 ;; twitel-access-token is set
                                  (make-oauth-access-token
                                   :consumer-key twitel-consumer-key
                                   :consumer-secret twitel-consumer-secret
@@ -106,20 +95,25 @@
                      (save-buffer)
                      (kill-this-buffer))))
       (unless twitel-access-token
+	;; Unless twitel-access-token was set without entering the if branch
+	;; ie. twitel-authenticate called unnecessarily. Just return twitel-access-token
         (let ((callback
                (lambda ()
+		 ;; This function will be invoked later, somewhere within oauth-twitter-app
+		 ;; Adds parameter callback_token to access_url
                  (let ((callback-token (read-string
                                         "Please enter the provided code: ")))
                    (setq access-url
-                         (concat access-url "?callback_token=" callback-token))))))
+                         (concat access-url "?oauth_verifier=" callback-token))))))
           (setq twitel-access-token
                 (oauth-authorize-app twitel-consumer-key
                                      twitel-consumer-secret
                                      twitel-request-url
                                      twitel-access-url
-                                     twitel-user-authorize)))
+                                     twitel-user-authorize
+				     callback)))
         (save-excursion
-          (find-file (twitel-token-path))
+          (find-file twitel-token-file)
           (end-of-buffer)
           (let ((token (oauth-access-token-auth-t twitel-access-token)))
             (insert (format "%s:%s\n"
