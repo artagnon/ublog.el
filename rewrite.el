@@ -8,6 +8,7 @@
 ;; Configuration constants
 (defvar twitter-host "twitter.com")
 (defvar twitter-search-host "search.twitter.com")
+(defvar twitter-response-format "json")
 (defvar twitter-port 80)
 (defvar twitter-user-agent "twitel")
 (defvar twitter-proxy-use nil)
@@ -138,10 +139,11 @@
   "Function needs to process the JSON response"
   nil)
 
-(defun twitter-request (http-method url &optional parameters)
+(defun twitter-request (url http-method &optional parameters)
   "Use HTTP METHOD to request URL with some optional parameters"
   (oauth-url-retrieve twitel-access-token
-		      (concat http-method " " url (if parameters (build-url-parameters parameters) nil))
+		      (concat url "." twitter-response-format (if parameters (build-url-parameters parameters) nil))
+		      http-method
 		      'twitel-master-callback))
 
 ;; User interfaces
