@@ -206,19 +206,27 @@ An optional ACCESS-CALLBACK can be specified which can make changes to the acces
                              :consumer-secret consumer-secret
                              :auth-t auth-t)))
 
-(defun oauth-url-retrieve (access-token url &optional async-callback)
+(defun oauth-url-retrieve (access-token url http-method &optional async-callback)
   "Like url retrieve, with url-request-extra-headers set to the necessary
 oauth headers."
+  ;; First create an oauth-request instance containing access-token information
   (let ((req (oauth-make-request
               url
               (oauth-access-token-consumer-key access-token)
               (oauth-access-token-auth-t access-token))))
-    (setf (oauth-request-http-method req) (or url-request-method "GET"))
+
+    ;; Set the HTTP Method in the req object
+    (setf (oauth-request-http-method req) http-method)
+
+    ;; Extra stuff
     (when oauth-post-vars-alist
       (setf (oauth-request-params req)
             (append (oauth-request-params req) oauth-post-vars-alist)))
+
+    ;; Sign req with consumer-secret from access-token
     (oauth-sign-request-hmac-sha1
      req (oauth-access-token-consumer-secret access-token))
+
     (let ((url-request-extra-headers (if url-request-extra-headers
                                          (append url-request-extra-headers
                                                  (oauth-request-to-header req))
@@ -443,3 +451,4 @@ characters are upper case and the reserved char set is slightly different."
 (provide 'oauth)
 
 ;;; oauth.el ends here
+{ oauth-url-retrieve args: ([cl-struct-oauth-access-token K9vrCLHpp5vuln72ROufzQ sUTgzZRgm0GCHQNYixFx3TS2D94TwaQv90gIXhTQNcE [cl-struct-oauth-t 14888753-0XPnkWy6ECqRFiaNiAhpCiGizox6gW7bSwLnio1JC 98VxLokHOFaXJO96BZGdpm9ftid3xkByqORT9CZuk]] GEThttp://twitter.com:80/statuses/update?status=My+first+tweet+from+Twitel.+Does+it+work%3f twitel-master-callback)
