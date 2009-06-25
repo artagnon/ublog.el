@@ -159,24 +159,49 @@ Returns an oauth-access-token if everything was successful.
 
 An optional ACCESS-CALLBACK can be specified which can make changes to the access url."
   (let ((auth-t) (auth-req) (unauth-t) (auth-url)
+	
+	;; STEP 0: Consumer has provided consumer-key and consumer-secret, to identify User
+	;; unauth-req is struct used to request an Unauthorized Request Token
+	;; It contains consumer-key and consumer-secret information,
+	;; to uniquely identify User ie. Twitel
         (unauth-req (oauth-sign-request-hmac-sha1
                      (oauth-make-request request-url consumer-key)
                      consumer-secret)))
+
+    ;; STEP 1: Consumer fetches the Unauthorized Request Token
+    ;; unauth-t is the token string fetched using unauth-req
     (setq unauth-t (oauth-fetch-token unauth-req))
+
+    ;; Build an auth-url using the Unauthorized Request token for STEP 2
     (setq auth-url (format "%s?oauth_token=%s"
                            authorize-url (oauth-t-token unauth-t)))
+
+    ;; STEP 2: User authorizes the Request Token fetched by the Consumer
+    ;; Open URL to authorize application
     (if oauth-enable-browse-url (browse-url auth-url))
-    (read-string (concat
-                  "Please authorize this application by visiting: " auth-url
-                  " \nPress enter once you have done so: "))
-    ;; Use this string from the Service Provider (keyed in by Consumer) to authorize the Request Token
-    (if access-callback (funcall access-callback)) ;; What's the point of this!?
+    
+    ;; The access-callback is now called to read off the oauth_token
+    ;; Now how does the Consumer know whether the user accepted or denied it?
+    ;; From the oauth_token parameter entered by the user in oauth_callback
+    ;; When making the next request to the Service Provider, it MAY use this oauth_token
+    ;; NOTE: Twitter decided that it should and renamed oauth_token to oauth_verifier
+    ;; access-callback is the oauth_callback function
+    (if access-callback 
+	;; access-callback waits for user input
+	(funcall access-callback)
+	;; Wait for the user to authorize on the web browser and return to this application
+	(read-string "Please authorize Twitel; Press enter once you have done so"))
+
+    ;; The struct for requesting an Access Token
     (setq auth-req
           (oauth-sign-request-hmac-sha1
            (oauth-make-request access-url consumer-key unauth-t)
            consumer-secret))
-    ;; With this awesome authorized Request Token, go and fetch the Acess Token
+
+    ;; STEP 3: Exchange the Authorized Request Token for an Access Token
     (setq auth-t (oauth-fetch-token auth-req))
+
+    ;; Function returns the final Access Token
     (make-oauth-access-token :consumer-key consumer-key
                              :consumer-secret consumer-secret
                              :auth-t auth-t)))

@@ -12,12 +12,11 @@
 ** parse-twresponse.el contains code to map json response to user variables. Needs lots of work
 ** twminors.el contains ideas for minor modes. Very long term goal - ?
 * The TODO priority list
-** IN-PROGRESS Unit test all the init functions and get OAuth authentication working [4/5]
+** IN-PROGRESS Unit test all the init functions and get OAuth authentication working [5/5]
    - [X] twitel-init :db5bca8
-   - [ ] twitel-authenticate fails in db5bca8 [0/2]
-     - [ ] twitter-authorize-app fails in oauth.el:176
-     - [ ] oauth-fetch-token fails in oauth.el:309 with Error: Search failed
-   - [X] twitter, twitter-username, twitter-password :db5bca8
+   - [X] twitel-authenticate fails in db5bca8 :7899a5c [2/2]
+     - [X] twitter-authorize-app fails in oauth.el:176
+     - [X] oauth-fetch-token fails in oauth.el:309 with Error: Search failed
    - [X] twitter-request :9626b49
    - [X] twitter-url :9626b49
 ** TODO Clean up and streamline the HTTP GET and POST interfaces in twhttp.el

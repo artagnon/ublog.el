@@ -112,6 +112,8 @@
                                      twitel-access-url
                                      twitel-user-authorize
 				     callback)))
+
+	;; We just got twitel-access-token. Save it to a file for all future authentication.
         (save-excursion
           (find-file twitel-token-file)
           (end-of-buffer)

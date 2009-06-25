@@ -1,18 +1,1 @@
-HTTP/1.1 200 OK
-Date: Tue, 23 Jun 2009 21:20:18 GMT
-Server: hi
-Last-Modified: Tue, 23 Jun 2009 21:20:18 GMT
-Status: 200 OK
-ETag: "ef88ce351e426661dbeda3b73ad13cb9"
-Pragma: no-cache
-Cache-Control: no-cache, no-store, must-revalidate, pre-check=0, post-check=0
-Content-Type: text/html; charset=UTF-8
-Content-Length: 161
-Expires: Tue, 31 Mar 1981 05:00:00 GMT
-X-Revision: 1c036f68cd438abd9cc11825657c126abe55756e
-X-Transaction: 1245792018-40872-22434
-Set-Cookie: _twitter_sess=BAh7BzoHaWQiJWNlYTNjZmUzNWE3OGQ1ZWU2MmM4YTY2MmViMGJjZTNmIgpm%250AbGFzaElDOidBY3Rpb25Db250cm9sbGVyOjpGbGFzaDo6Rmxhc2hIYXNoewAG%250AOgpAdXNlZHsA--fb6c872c97b93a39cabedeee20b57ae91d247b4a; domain=.twitter.com; path=/
-Vary: Accept-Encoding
-Connection: close
-
 oauth_token=14888753-sWi4QgApC6Yoz8RtQurLHqxhy7AsSBT4HDWxIgLRU&oauth_token_secret=Puv9as5Q3t7VDKl7SmjSTBEIMSsYgk371HdZcv1ZU&user_id=14888753&screen_name=artagnon
