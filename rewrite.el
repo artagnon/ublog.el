@@ -34,7 +34,7 @@
 (defvar twitel-consumer-secret "sUTgzZRgm0GCHQNYixFx3TS2D94TwaQv90gIXhTQNcE")
 
 (defvar twitel-access-token nil)
-;; TODO: artagnon cannot be hardcoded here!
+;; TODO: `artagnon' cannot be hardcoded here!
 (defvar twitel-token-file "/home/artagnon/.twitel/token")
 
 (defun twitel-network-buffer ()
@@ -125,7 +125,7 @@
           (kill-this-buffer)))
       twitel-access-token))
 
-(defun twitter-url (&optional search-flag relative)
+(defun twitter-url (&optional relative search-flag)
   "Generate a Twitter URL with an optional relative"
   (format "http://%s:%d/%s" (if search-flag twitter-search-host twitter-host) twitter-port (or relative "")))
 
@@ -134,24 +134,15 @@
   (let ((response-struct (json-read-from-string response)))
     (progn)))
 
-(defun url-percent-encode (str &optional coding-system)
-  (if (or (null coding-system)
-          (not (coding-system-p coding-system)))
-      (setq coding-system 'utf-8))
-  (mapconcat
-   (lambda (c)
-     (cond
-       ((twittering-url-reserved-p c)
-        (char-to-string c))
-       ((eq c ? ) "+")
-       (t (format "%%%x" c))))
-   (encode-coding-string str coding-system)
-   ""))
+(defun twitel-master-callback (json-response)
+  "Function needs to process the JSON response"
+  nil)
 
 (defun twitter-request (http-method url &optional parameters)
   "Use HTTP METHOD to request URL with some optional parameters"
-  (process-send-string twitel-proc
-                       (concat http-method url (if parameters (build-url-parameters parameters) nil))))
+  (oauth-url-retrieve twitel-access-token
+		      (concat http-method " " url (if parameters (build-url-parameters parameters) nil))
+		      'twitel-master-callback))
 
 ;; User interfaces
 
