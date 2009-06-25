@@ -23,7 +23,29 @@
 	(or (get-buffer buffer)
 	    (generate-new-buffer buffer)))))
 
-(defmacro build-url-parameters (parameters)
+(defun twitel-url-reserved-p (ch)
+  (or (and (<= ?A ch) (<= ch ?z))
+      (and (<= ?0 ch) (<= ch ?9))
+      (eq ?. ch)
+      (eq ?- ch)
+      (eq ?_ ch)
+      (eq ?~ ch)))
+
+(defun url-percent-encode (str &optional coding-system)
+  (if (or (null coding-system)
+          (not (coding-system-p coding-system)))
+      (setq coding-system 'utf-8))
+  (mapconcat
+   (lambda (c)
+     (cond
+       ((twitel-url-reserved-p c)
+        (char-to-string c))
+       ((eq c ? ) "+")
+       (t (format "%%%x" c))))
+   (encode-coding-string str coding-system)
+   ""))
+
+(defun build-url-parameters (parameters)
   "Build a string of url parameters given the parameters in a list"
   (when parameters
     (concat "?"
