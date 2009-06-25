@@ -17,11 +17,15 @@
    - [X] twitel-authenticate fails in db5bca8 :7899a5c [2/2]
      - [X] twitter-authorize-app fails in oauth.el:176
      - [X] oauth-fetch-token fails in oauth.el:309 with Error: Search failed
-   - [X] twitter-request :9626b49
-   - [X] twitter-url :9626b49
-** TODO Clean up and streamline the HTTP GET and POST interfaces in twhttp.el
+   - [X] twitter-request :9626b49 :fb53c90
+   - [X] twitter-url :9626b49 :4c55ca2
+* ABANDONED Clean up and streamline the HTTP GET and POST interfaces in twhttp.el
+  CLOSED: [2009-06-25 Thu 23:46]
+  - CLOSING NOTE [2009-06-25 Thu 23:47] \\
+    oauth.el has some HTTP interfaces. Working on them instead.
 *** Rip out similar code from other files such as rewrite.el
-** TODO Finish off twapi.el for the standard Twitter API interfaces
+** IN-PROGRESS Finish off twapi.el for the standard Twitter API interfaces
+*** IN-PROGRESS Unit test interfaces in twapi.el
 ** TODO Parse json response using json-read-from-string in parse-twresponse.el. Hook to sentinel?
 ** TODO Dump new ideas into twsuperapi.el
 * Learning assignments

@@ -1,64 +1,74 @@
 (provide 'twapi)
 
 ;; Search Methods
-(defun twitter-search (query &optional since)
-  (twitter-request "GET" (twitter-url (format "%s" "search"))
-		   :parameters '(("since" since))))
+(defun twitter-search (search-term &optional since)
+  (twitter-request "GET" (twitter-url (format "%s" "search") t)
+		   `(("q" . ,search-term))))
 
 (defun twitter-trends ()
-  (twitter-request "GET" (twitter-url (format "%s" "trends"))
-		   :parameters '()))
+  (twitter-request (twitter-url (format "%s" "trends") t)
+		   "GET"))
 
 (defun twitter-trends-current (since)
-  (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "user_timeline"))
-		   :parameters '(("since" since))))
+  (twitter-request (twitter-url (format "%s/%s" "statuses" "user_timeline"))
+		   "GET"
+		   '(("since" since))))
 
 (defun twitter-trends-daily (since)
   (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "user_timeline"))
-		   :parameters '(("since" since))))
+		   '(("since" since))))
 
 (defun twitter-trends-weekly (since)
   (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "user_timeline"))
-		   :parameters '(("since" since))))
+		   '(("since" since))))
 
 ;; Timeline Methods
 (defun twitter-public-timeline (since)
   (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "public_timeline"))
-		   :parameters '(("since" since))))
+		   '(("since" since))))
 
 (defun twitter-friends-timeline (since)
   (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "friends_timeline"))
-		   :parameters '(("since" since))))
+		   '(("since" since))))
 
 (defun twitter-user-timeline (&optional since)
   (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "user_timeline"))
-		   :parameters '(("since" since))))
+		   '(("since" since))))
 
 (defun twitter-mentions (&optional since)
   (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "mentions"))
-		   :parameters '(("since" since))))
+		   '(("since" since))))
 
 ;; Status Methods
-(defun twitter-show-status (status)
-    (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "show"))
-		     :parameters '(("status" status))))
+(defun twitter-show-status (id)
+  (twitter-request (twitter-url (format "%s/%s/%d" "statuses" "show" id))
+		   "GET"))
 
 (defun twitter-update-status (status)
-    (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "update"))
-		     :parameters '(("status" status))))
+  (twitter-request (twitter-url (format "%s/%s" "statuses" "update"))
+		   "POST"
+		   `(("status" . ,status))))
 
-(defun twitter-destroy-status (status)
-    (twitter-request "DELETE" (twitter-url (format "%s/%s" "statuses" "destroy"))
-		     :parameters '(("status" status))))
+(defun twitter-show-status (id)
+  (twitter-request (twitter-url (format "%s/%s/%d" "statuses" "destroy" id))
+		   "DELETE"))
 
 ;; User Methods
 (defun twitter-show-user (screen-name)
-    (twitter-request "GET" (twitter-url (format "%s/%s" "users" "show"))
-		     :parameters '(("screen_name" screen-name))))
+  (twitter-request (twitter-url (format "%s/%s" "users" "show"))
+		   "GET"
+		   `(("screen_name" . ,screen-name))))
 
-(defun twitter-show-friends (search-term)
-    (twitter-request "GET" (twitter-url (format "%s/%s" "users" "show"))
-		     :parameters '(("search_term" search-term))))
+(defun twitter-show-friends (screen-name)
+  (twitter-request (twitter-url (format "%s/%s" "statuses" "friends"))
+		   "GET"
+		   `(("screen_name" . ,screen-name))))
+
+(defun twitter-show-followers (screen-name)
+  (twitter-request (twitter-url (format "%s/%s" "statuses" "followers"))
+		   "GET"
+		   `(("screen_name" . ,screen-name))))
+
 
 ;; Account Methods
 
