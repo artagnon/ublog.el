@@ -78,23 +78,22 @@
   "Get authentication token"
   (if (file-exists-p twitel-token-file)
       ;; Enter this only after authenticating the first time
-      (progn
-        (save-excursion
-          (find-file (twitel-token-file)
-		     ;; Read file to get `acess token'
-                     (let ((str (buffer-substring (point-min) (point-max))))
-                       (if (string-match "\\([^:]*\\):\\(.*\\)"
-                                         (buffer-substring (point-min) (point-max)))
-                           (setq twitel-access-token
-				 ;; twitel-access-token is set
-                                 (make-oauth-access-token
-                                  :consumer-key twitel-consumer-key
-                                  :consumer-secret twitel-consumer-secret
-                                  :auth-t (make-oauth-t
-                                           :token (match-string 1 str)
-                                           :token-secret (match-string 2 str))))))
-                     (save-buffer)
-                     (kill-this-buffer))))
+      (save-excursion
+	;; Read file to get `acess token'
+	(find-file twitel-token-file)
+	(let ((str (buffer-substring (point-min) (point-max))))
+	  (if (string-match "\\([^:]*\\):\\(.*\\)"
+			    (buffer-substring (point-min) (point-max)))
+	      (setq twitel-access-token
+		    ;; twitel-access-token is set
+		    (make-oauth-access-token
+		     :consumer-key twitel-consumer-key
+		     :consumer-secret twitel-consumer-secret
+		     :auth-t (make-oauth-t
+			      :token (match-string 1 str)
+			      :token-secret (match-string 2 str))))))
+	(save-buffer)
+	(kill-this-buffer))
       (unless twitel-access-token
 	;; Unless twitel-access-token was set without entering the if branch
 	;; ie. twitel-authenticate called unnecessarily. Just return twitel-access-token
@@ -181,3 +180,4 @@ character count on the mode line is updated."
       ;; Buffer is not too long so just hide the overlay
       (when twitter-status-edit-overlay
         (delete-overlay twitter-status-edit-overlay))))
+{ twitel-authenticate args: nil
