@@ -1,6 +1,6 @@
 (require 'json)
 (require 'url)
-(require 'parse-twresponse)
+(require 'twparse)
 (require 'twhelper)
 (require 'twhttp)
 (require 'oauth)
@@ -38,17 +38,21 @@
 ;; TODO: `artagnon' cannot be hardcoded here!
 (defvar twitel-token-file "/home/artagnon/.twitel/token")
 
-(defun twitel-master-callback ()
+(defun twitel-master-callback (status)
   "Function gets called with current-buffer as the response dump of a HTTP request"
-  (let ((response-dump (buffer-string)))
-       (let ((http-info (extract-http-info response-dump)))
-	 (case-string (car http-info)
-		      (("200 OK")
-		       (message "Status updated"))
-		      (t
-		       (message status)))
-	 ;; Now extract the response-body and parse the json
-	 (cdr http-info))))
+  (if (error-status-p status)
+      ;; What to do if an error has occured
+      (error (message (error-status-to-string status)))
+      
+      (let ((response-dump (buffer-string)))
+	(let ((http-info (extract-http-info response-dump)))
+	  (case-string (car http-info)
+		       (("200 OK")
+			(message "Success"))
+		       (t
+			(message status)))
+	  ;; Now extract the response-body and parse the json
+	  (json-read-from-string (cdr http-info))))))
 
 (defun twitel-init ()
   "Check if the configuration directory exists and authenticate"

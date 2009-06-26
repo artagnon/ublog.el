@@ -71,6 +71,12 @@
 	  (substring response-dump double-ret-marker)))
     (cons response-status response-body)))
 
+(defun error-status-p (error-list)
+  nil)
+
+(defun error-status-to-string (error-list)
+  nil)
+
 (defmacro union (list-1 list-2)
   "Build a union of two lists"
   (delete-dups (append list-1 list-2)))
