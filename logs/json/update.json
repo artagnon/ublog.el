@@ -1,0 +1,20 @@
+HTTP/1.1 200 OK
+Date: Thu, 25 Jun 2009 18:03:51 GMT
+Server: hi
+Last-Modified: Thu, 25 Jun 2009 18:03:51 GMT
+Status: 200 OK
+ETag: "96934a780ee6b0aceb8ff06282b9bf2d"
+Pragma: no-cache
+Cache-Control: no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+Content-Type: application/json; charset=utf-8
+Content-Length: 1251
+Expires: Tue, 31 Mar 1981 05:00:00 GMT
+X-Revision: 87b646fb366f2c8aee9b0e3ea235be9c91e243da
+X-Transaction: 1245953031-63578-964
+Set-Cookie: lang=en; path=/
+Set-Cookie: lang=en; path=/
+Set-Cookie: _twitter_sess=BAh7CToJdXNlcmkDMS%252FjOhNwYXNzd29yZF90b2tlbiItNzNmZWJjOWJkZjk2%250AOTgzNzhmMTQ5MjgxZWYxYTMyOGRkNmQwNjFjZjoHaWQiJTExMWI5YTdlMmQy%250AYjczMWQyNjU5ZGQzZTgzNzAzNWMxIgpmbGFzaElDOidBY3Rpb25Db250cm9s%250AbGVyOjpGbGFzaDo6Rmxhc2hIYXNoewAGOgpAdXNlZHsA--66e7cadc3e1c3efe133882dc4bbc30f93f54a53d; domain=.twitter.com; path=/
+Vary: Accept-Encoding
+Connection: close
+
+{"text":"My first tweet from Twitel. Does it work?","in_reply_to_status_id":null,"user":{"notifications":false,"profile_text_color":"000000","description":"Idealist. Purist. Programmer. Incidentally, also a student at IIT Kharagpur.","profile_background_image_url":"http:\/\/s3.amazonaws.com\/twitter_production\/profile_background_images\/2574253\/highlands_germany.jpg","utc_offset":19800,"time_zone":"Kolkata","created_at":"Sat May 24 06:00:59 +0000 2008","profile_link_color":"000000","followers_count":626,"statuses_count":3238,"profile_background_tile":false,"friends_count":486,"profile_background_color":"DDFAED","url":"http:\/\/artagnon.com","name":"Ramkumar R","protected":false,"favourites_count":18,"profile_sidebar_fill_color":"e0ff92","profile_image_url":"http:\/\/s3.amazonaws.com\/twitter_production\/profile_images\/79367886\/artagnon_normal.jpg","profile_sidebar_border_color":"87bc44","screen_name":"artagnon","following":false,"location":"Kharagpur, West Bengal, India","id":14888753,"verified":false},"created_at":"Thu Jun 25 18:03:51 +0000 2009","in_reply_to_user_id":null,"favorited":false,"in_reply_to_screen_name":null,"id":2329690155,"truncated":false,"source":"<a href=\"http:\/\/github.com\/artagnon\/twitel\">Twitel<\/a>"}

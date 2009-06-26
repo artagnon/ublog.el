@@ -1,0 +1,70 @@
+HTTP/1.1 404 Not Found
+Date: Thu, 25 Jun 2009 17:41:31 GMT
+Server: hi
+Last-Modified: Thu, 25 Jun 2009 17:41:32 GMT
+Status: 404 Not Found
+Pragma: no-cache
+Cache-Control: no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+Content-Type: text/html; charset=utf-8
+Content-Length: 2222
+Expires: Tue, 31 Mar 1981 05:00:00 GMT
+X-Revision: 87b646fb366f2c8aee9b0e3ea235be9c91e243da
+X-Transaction: 1245951691-89147-12947
+Set-Cookie: lang=en; path=/
+Set-Cookie: lang=en; path=/
+Set-Cookie: _twitter_sess=BAh7CjoOcmV0dXJuX3RvIlpodHRwOi8vdHdpdHRlci5jb20vc3RhdHVzZXMv%250AdXBkYXRlP3N0YXR1cz1NeStmaXJzdCt0d2VldCtmcm9tK1R3aXRlbC4rRG9l%250AcytpdCt3b3JrJTNmOgl1c2VyaQMxL%252BM6E3Bhc3N3b3JkX3Rva2VuIi03M2Zl%250AYmM5YmRmOTY5ODM3OGYxNDkyODFlZjFhMzI4ZGQ2ZDA2MWNmOgdpZCIlYjgx%250AZGIzMTIwOWM4MWE5NTFlOTU2MDc0ZTViMDI3MmYiCmZsYXNoSUM6J0FjdGlv%250AbkNvbnRyb2xsZXI6OkZsYXNoOjpGbGFzaEhhc2h7AAY6CkB1c2VkewA%253D--9b8306025aeb91237cdb24e66b6a88de9d6689d0; domain=.twitter.com; path=/
+Vary: Accept-Encoding
+Connection: close
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+  	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  	<meta http-equiv="Content-Language" content="en-us" />
+  	<title>Twitter / ?</title>
+  	<link rel="icon" href="http://static.twitter.com/favicon.ico" type="image/ico" />
+  	<style type="text/css">
+    a{text-decoration:underline;color: #0084b4;}
+    a img{border:0;}
+    body{background:#9AE4E8 url(http://static.twitter.com/images/bg.gif) no-repeat fixed left top;color:#333;font:1.1em Helvetica,Arial,sans-serif;margin:10px 30% 10px 30%;}
+    </style>
+  	<script type="text/javascript">
+    function clearUserSearch() {
+      document.getElementById('user_search_q').value = '';
+    }
+    </script>
+  </head>
+  <body>
+    <center>
+      <br /><br />
+      <a href="http://twitter.com/"><img src="http://static.twitter.com/images/twitter_logo_s.gif" /></a><br /><br />
+      <img src="http://static.twitter.com/images/arr2.gif" />
+      <div style="background-color: #fff; padding:20px 10px;-moz-border-radius: 5px;-webkit-border-radius: 5px;">
+        That page doesn't exist!
+        <br /><br />
+        <img src="http://static.twitter.com/images/not_found.gif" />
+        <br /><br />
+        <br /><br />
+        <p style="font-size: 0.7em;">
+          <a href="/">Home</a> &nbsp;&nbsp;&nbsp;&nbsp;
+          <a href="/help">Help</a> &nbsp;&nbsp;&nbsp;&nbsp;
+          <a href="/help/contact">Contact Support</a>
+        </p>
+        <br />
+      </div>
+    </center>
+
+    <!-- BEGIN google analytics -->
+    <script type="text/javascript">
+      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+      document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+      var pageTracker = _gat._getTracker("UA-30775-6");
+      pageTracker._setDomainName("twitter.com");
+      pageTracker._trackPageview('404 Error');
+    </script>
+    <!-- END google analytics -->
+
+  </body>
+</html>
