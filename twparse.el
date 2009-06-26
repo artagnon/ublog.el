@@ -1,39 +1,36 @@
-(provide 'parse-twresponse)
+(provide 'twparse)
 
-(defun twittering-get-response-header (&optional buffer)
-  "Exract HTTP response header from HTTP response."
-  (if (stringp buffer) (setq buffer (get-buffer buffer)))
-  (if (null buffer) (setq buffer (twittering-http-buffer)))
-  (save-excursion
-    (set-buffer buffer)
-    (let ((content (buffer-string)))
-      (substring content 0 (string-match "\r?\n\r?\n" content)))))
+(defstruct tweet-entity
+  source
+  truncated
+  id
+  in-reply-to-screen-name
+  favorited
+  in-reply-to-user-id
+  created-at
+  in-reply-to-status-id
+  text
+)
 
-(defun twittering-get-response-body (&optional buffer)
-  "Exract HTTP response body from HTTP response, parse it as XML, and return a
-XML tree as list."
-  (if (stringp buffer) (setq buffer (get-buffer buffer)))
-  (if (null buffer) (setq buffer (twittering-http-buffer)))
-  (save-excursion
-    (set-buffer buffer)
-    (let ((content (buffer-string)))
-      (let ((content (buffer-string)))
-	(xml-parse-region (+ (string-match "\r?\n\r?\n" content)
-			     (length (match-string 0 content)))
-			  (point-max))))))
-
-(defun twittering-xmltree-to-status (xmltree)
-  "TODO: Modify this function to parse JSON, not XML"
-  (mapcar #'twittering-status-to-status-datum
-	  ;; mapcar takes every status and passes it through twittering-status-to-status-datum
-	  ;; quirk to treat difference between xml.el in Emacs21 and Emacs22
-	  ;; On Emacs22, there may be blank strings
-	  (let ((ret nil) (statuses (reverse (cddr (car xmltree)))))
-	    (while statuses
-	      (if (consp (car statuses))
-		  (setq ret (cons (car statuses) ret)))
-	      (setq statuses (cdr statuses)))
-	    ret)))
+(defstruct user-entity
+  verified
+  id
+  location
+  following
+  screen-name
+  profile-image-url
+  protected
+  name
+  url
+  friends-count
+  statuses-count
+  followers-count
+  created-at
+  time-zone
+  utc-offset
+  description
+  notifications
+)
 
 (defun twittering-status-to-status-datum (status)
   (flet ((assq-get (item seq)
