@@ -232,10 +232,7 @@ oauth headers."
                                                  (oauth-request-to-header req))
                                          (oauth-request-to-header req)))
           (url-request-method (oauth-request-http-method req)))
-      (cond
-        (oauth-use-curl (oauth-curl-retrieve (oauth-request-url req)))
-        (async-callback (url-retrieve (oauth-request-url req) async-callback))
-        (t (url-retrieve-synchronously (oauth-request-url req)))))))
+      (url-retrieve (oauth-request-url req) async-callback))))
 
 (defun oauth-fetch-url (access-token url)
   "Wrapper around url-retrieve-synchronously using the the authorized-token
@@ -451,4 +448,3 @@ characters are upper case and the reserved char set is slightly different."
 (provide 'oauth)
 
 ;;; oauth.el ends here
-{ oauth-url-retrieve args: ([cl-struct-oauth-access-token K9vrCLHpp5vuln72ROufzQ sUTgzZRgm0GCHQNYixFx3TS2D94TwaQv90gIXhTQNcE [cl-struct-oauth-t 14888753-0XPnkWy6ECqRFiaNiAhpCiGizox6gW7bSwLnio1JC 98VxLokHOFaXJO96BZGdpm9ftid3xkByqORT9CZuk]] GEThttp://twitter.com:80/statuses/update?status=My+first+tweet+from+Twitel.+Does+it+work%3f twitel-master-callback)
