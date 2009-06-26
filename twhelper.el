@@ -57,6 +57,20 @@
 	     parameters
 	     "&"))))
 
+(defun extract-http-info (response-dump)
+  "Extract HTTP information from a response dump"
+  (let* ((double-ret-marker
+	  (string-match "\r?\n\r?\n" response-dump))
+	 (response-header
+	  (substring response-dump 0 double-ret-marker))
+	 (response-status
+	  (progn
+	    (string-match "HTTP/1\.1 \\([a-z0-9 ]+\\)\r?\n" response-header)
+	    (match-string-no-properties 1 response-header)))
+	 (response-body
+	  (substring response-dump double-ret-marker)))
+    (cons response-status response-body)))
+
 (defmacro union (list-1 list-2)
   "Build a union of two lists"
   (delete-dups (append list-1 list-2)))
