@@ -38,41 +38,26 @@
 ;; TODO: `artagnon' cannot be hardcoded here!
 (defvar twitel-token-file "/home/artagnon/.twitel/token")
 
-(defun twitel-network-buffer ()
-  "The network buffer in which twitel-proc runs"
-  (get-or-generate-buffer "*twitel-network-buffer*"))
-
-(defun twitel-proc-sentinel (proc stat &optional success-message)
-  (condition-case err-signal
-      (let ((header (twittering-get-response-header))
-            (status nil))
-        (string-match "HTTP/1\.1 \\([a-z0-9 ]+\\)\r?\n" header)
-        (setq status (match-string-no-properties 1 header))
-        (case-string status
-                     (("200 OK")
-		      (message (if success-message success-message "Success: Post")))
-                     (t
-		      (message status))))
-    (error (message (prin1-to-string err-signal)))))
+(defun twitel-master-callback ()
+  "Function gets called with current-buffer as the response dump of a HTTP request"
+  (let ((response-dump (buffer-string)))
+       (let ((http-info (extract-http-info response-dump)))
+	 (case-string (car http-info)
+		      (("200 OK")
+		       (message "Status updated"))
+		      (t
+		       (message status)))
+	 ;; Now extract the response-body and parse the json
+	 (cdr http-info))))
 
 (defun twitel-init ()
-  "Open a network stream, set process sentinel, and create cache directory"
+  "Check if the configuration directory exists and authenticate"
   (interactive)
-  (if twitter-proxy-use
-      (setq server twitter-proxy-server
-            port (if (integerp twitter-proxy-port)
-                     (int-to-string twitter-proxy-port)
-                     twittering-proxy-port))
-      (setq server "twitter.com"
-            port 80))
 
-  (setq twitel-proc
-        (open-network-stream
-         "twitel-connection" (twitel-network-buffer) server port))
-  (set-process-sentinel twitel-proc 'twitel-proc-sentinel)
   (if (file-directory-p "~/.twitel")
       nil
-      (make-directory "~/.twitel")))
+      (make-directory "~/.twitel"))
+  (twitel-authenticate))
 
 (defun twitel-authenticate ()
   "Get authentication token"
@@ -133,10 +118,6 @@
   "Parsing the Twitter response returned in JSON"
   (let ((response-struct (json-read-from-string response)))
     (progn)))
-
-(defun twitel-master-callback (json-response)
-  "Function needs to process the JSON response"
-  nil)
 
 (defun twitter-request (url http-method &optional parameters)
   "Use HTTP METHOD to request URL with some optional parameters"
