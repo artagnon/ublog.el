@@ -38,8 +38,7 @@
     - CLOSING NOTE [2009-06-27 Sat 03:12] \\
       Finished in :1120a52
 *** IN-PROGRESS Parsing
-    - [ ] Design data structures for various entities
-    - [ ] Feed output of json-read-from-string into data structure
+    - [ ] Refactor response-hash-table for suitable display
     - [ ] Database backend for caching: bbdb? [0/2]
       - [ ] Database design
       - [ ] ORM: Data structure <-> Database bridge
