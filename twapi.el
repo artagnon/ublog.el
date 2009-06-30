@@ -1,3 +1,25 @@
+;;;; twapi.el -- Twitter API implementation library
+;;;; This file is part of Twitel (http://github.com/artagnon/twitel)
+
+;; Copyright (C) 2009 Ramkumar R <artagnon@gmail.com>
+
+;; This file is NOT part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs; see the file COPYING. If not, write to the
+;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+;; Boston, MA 02110-1301, USA.
+
 (provide 'twapi)
 
 ;; Search Methods
@@ -23,21 +45,24 @@
 		   '(("since" since))))
 
 ;; Timeline Methods
-(defun twitter-public-timeline (since)
-  (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "public_timeline"))
-		   '(("since" since))))
+(defun twitter-public-timeline (&optional since)
+  (twitter-request (twitter-url (format "%s/%s" "statuses" "public_timeline"))
+		   "GET"
+		   `(("since" . ,since))))
 
-(defun twitter-friends-timeline (since)
-  (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "friends_timeline"))
-		   '(("since" since))))
+(defun twitter-friends-timeline (&optional since)
+  (twitter-request (twitter-url (format "%s/%s" "statuses" "friends_timeline"))
+		   "GET"
+		   `(("since" . ,since))))
 
 (defun twitter-user-timeline (&optional since)
-  (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "user_timeline"))
-		   '(("since" since))))
+  (twitter-request (twitter-url (format "%s/%s" "statuses" "user_timeline"))
+		   "GET"))
 
 (defun twitter-mentions (&optional since)
-  (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "mentions"))
-		   '(("since" since))))
+  (twitter-request (twitter-url (format "%s/%s" "statuses" "mentions"))
+		   "GET"
+		   `(("since" . ,since))))
 
 ;; Status Methods
 (defun twitter-show-status (id)
