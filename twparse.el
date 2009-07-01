@@ -24,19 +24,22 @@
 
 (defvar *tweet-hashtable-select-keys*
   ;; Design based on Gravity
-  (list "id"                        ;; -> "tweet-id"
-        "favorited"                 ;; -> "fav"
-        "created_at"                ;; -> "created-at"
-        "source"                    ;; -> "source
-        "text"                      ;; -> "text"
-        "in_reply_to_status_id"))   ;; -> "in-reply-to-status-id"
+  `(("id" . tweet-id)
+    ("favorited" . fav-p)
+    ("created_at" . created-at)
+    ("source" . source)
+    ("text" . text)
+    ("in_reply_to_status_id" . in-reply-to-status-id)))
 
 (defvar *user-hashtable-select-keys*
   ;; Design based on Gravity
-  (list "id"                        ;; -> "user-id"
-        "screen_name"               ;; -> "screen-name"
-        "profile_image_url"         ;; -> "user-image-url"
-        "following"))               ;; -> "following"
+  `(("id" . user-id)
+    ("screen_name" . screen-name)
+    ("profile_image_url" . profile-image-url)
+    ("following" . following-p)))
+
+(defun alist-to-car-list (list)
+  (mapcar #'(lambda (cons-pair) (car cons-pair)) list))
 
 (defun master-parser (response-object)
   "Master response-object parser"
@@ -48,16 +51,34 @@
 (defun hashtable-parser (response-hashtable)
   "Crops, sanitizes, and enriches hashtable"
   (let* ((user-entry (gethash "user" response-hashtable))
-	 (tweet-hashtable (hashtable-parser-expander response-hashtable *tweet-hashtable-select-keys*))
-	 (user-hashtable (hashtable-parser-expander user-entry *user-hashtable-select-keys*)))
+	 (tweet-hashtable (hashtable-parser-expander
+			   response-hashtable
+			   (alist-to-car-list *tweet-hashtable-select-keys*)))
+	 (user-hashtable (hashtable-parser-expander
+			  user-entry
+			  (alist-to-car-list *user-hashtable-select-keys*))))
     ;; Now merge user-hashtable and tweet-hashtable
     (merge-hashtable tweet-hashtable user-hashtable)))
 
+(defun find-assoc (k)
+  (let ((assoc-1 (assoc k *tweet-hashtable-select-keys*)))
+    (if assoc-1
+	(cdr assoc-1)
+	(cdr (assoc k *user-hashtable-select-keys*)))))
+
+(defun sanitize-hashtable-keys (hashtable)
+  (let ((final-hashtable (make-hash-table :size 10)))
+    (maphash #'(lambda (k v)
+		 (let ((key-assoc (find-assoc k)))
+		   (setf (gethash key-assoc final-hashtable) v)))
+	     hashtable)
+    final-hashtable))
+
 (defun merge-hashtable (hashtable-1 hashtable-2)
   (if (and hashtable-1 hashtable-2)
-      (let ((final-hashtable (make-hash-table
-			      :size 10
-			      :test 'equal)))
+      (let ((final-hashtable (make-hash-table :size 10))
+	    (hashtable-1 (sanitize-hashtable-keys hashtable-1))
+	    (hashtable-2 (sanitize-hashtable-keys hashtable-2)))
 	(maphash #'(lambda (k v) (setf (gethash k final-hashtable) v)) hashtable-1)
 	(maphash #'(lambda (k v) (setf (gethash k final-hashtable) v)) hashtable-2)
 	final-hashtable)
@@ -74,7 +95,7 @@
       nil))
 
 (defun crop-hashtable (hashtable select-keys)
-  (let ((cropped-hashtable (make-hash-table :test 'equal :size 6)))
+  (let ((cropped-hashtable (make-hash-table :test 'equal :size 10)))
     (loop
        for crop-key in select-keys
        do (cond
@@ -158,4 +179,3 @@
         (list-push (substring encoded-str cursor) result)
         (apply 'concat (nreverse result)))
       ""))
-{ crop-hashtable args: (#<hash-table 'equal nil 3/65 0x955e6a8> (id favorited created_at source text in_reply_to_status_id))
