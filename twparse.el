@@ -47,10 +47,11 @@
 
 (defun hashtable-parser (response-hashtable)
   "Crops, sanitizes, and enriches hashtable"
-  (let* ((selected-hashtable (hashtable-parser-expander response-hashtable *tweet-hashtable-select-keys*))
-         (user-entry (gethash "user" selected-hashtable)))
+  (let* ((user-entry (gethash "user" response-hashtable))
+	 (selected-hashtable (hashtable-parser-expander response-hashtable *tweet-hashtable-select-keys*)))
     ;; if the hashtable contains another "user" hashtable, parse that also
     (when user-entry
+      ;; TODO: Flatten the response-hashtable!
       (setf (gethash "user" selected-hashtable)
             (hashtable-parser-expander user-entry *user-hashtable-select-keys*)))
     selected-hashtable))
