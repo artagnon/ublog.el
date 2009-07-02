@@ -69,15 +69,14 @@
 
 (defun build-url-parameters (parameters)
   "Build a string of url parameters given the parameters in a list"
-  (when parameters
-    (concat "?"
-	    (mapconcat
-	     (lambda (param-pair)
-	       (format "%s=%s"
-		       (url-percent-encode (car param-pair))
-		       (url-percent-encode (cdr param-pair))))
-	     parameters
-	     "&"))))
+  (concat "?"
+	  (mapconcat
+	   (lambda (param-pair)
+	     (format "%s=%s"
+		     (url-percent-encode (car param-pair))
+		     (url-percent-encode (or (cdr param-pair) ""))))
+	   parameters
+	   "&")))
 
 (defun extract-http-info (response-dump)
   "Extract HTTP information from a response dump"

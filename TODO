@@ -3,13 +3,13 @@
 
 * Structure and file layout
 ** twapi.el for standard Twitter API interfaces: Need to complete
-** twsuperapi.el for additional interfaces: New ideas go here. Document well!
-** twhttp.el handles all HTTP communication- Most of it is ripped out from http-get.el and http-post.el
+** twsuperapi.el for extra API interfaces. New ideas go here. Document well!
+** twrender.el is the rendering library. All display-related functions go here
 ** rewrite.el that binds together everything. Will be renamed later
 ** twhelper.el for all commonly used misc macros. Will probably get rid of this later
-** oauth.el lifted from psanford's repo. Try not to edit
-** hmc-sha1.el lifted from Derek Upham's repo. No need to edit
-** parse-twresponse.el contains code to map json response to user variables. Needs lots of work
+** oauth.el lifted from psanford's repo and heavily edited. Used for all HTTP communicated.
+** hmc-sha1.el lifted from Derek Upham's repo. Unmodified
+** twparse.el contains code to map json response to user variables. Needs lots of work
 ** twminors.el contains ideas for minor modes. Very long term goal - ?
 * The TODO priority list
 ** DONE Unit test all the init functions and get OAuth authentication working [5/5]
@@ -32,7 +32,10 @@
       Ripped out in :1120a52
 ** IN-PROGRESS Finish off twapi.el for the standard Twitter API interfaces
 *** IN-PROGRESS Unit test interfaces in twapi.el
-*** IN-PROGRESS Passing optional parameters: Figure out a way!
+*** DONE Passing optional parameters: Figure out a way!
+    CLOSED: [2009-07-02 Thu 16:49]
+    - CLOSING NOTE [2009-07-02 Thu 16:49] \\
+      Done with a simple (or <nil parameter> "")
 ** DEFERRED Parse response and hook to callback
 *** DONE Create the callback function
     CLOSED: [2009-06-27 Sat 03:12]
@@ -50,6 +53,7 @@
 	- [ ] Tweet caching
 	- [ ] DP caching
 ** TODO Complete UI [0/3]
+   - [ ] Dump interface functions into twinterface.el
    - [ ] Rendering tweets [0/2]
      - [ ] Basic rendering
      - [ ] Hook rendering to cache
@@ -59,10 +63,3 @@
    - [ ] Auto-fetch
    - [ ] Notifications
 ** TODO Dump new ideas into twsuperapi.el
-* Learning assignments
-** Processing the output of json-read-from-string
-** Learn DP retreival from twittering-mode.el
-** How to make links "clickable"? It's a font property. Learn from twittering-mode.el
-** DP image caching
-** Caching Twitter timeline updates
-** Limiting number of API hits
