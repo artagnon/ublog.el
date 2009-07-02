@@ -32,25 +32,32 @@
       Ripped out in :1120a52
 ** IN-PROGRESS Finish off twapi.el for the standard Twitter API interfaces
 *** IN-PROGRESS Unit test interfaces in twapi.el
-** IN-PROGRESS Parse response and hook to callback
+*** IN-PROGRESS Passing optional parameters: Figure out a way!
+** DEFERRED Parse response and hook to callback
 *** DONE Create the callback function
     CLOSED: [2009-06-27 Sat 03:12]
     - CLOSING NOTE [2009-06-27 Sat 03:12] \\
       Finished in :1120a52
-*** IN-PROGRESS Parsing [0/2]
-    - [-] Refactor response-hash-table for suitable display: Unit testing [2/3]
+*** DEFERRED Parsing [1/2]
+    - [X] Refactor response-hash-table for suitable display: Unit testing [3/3]
       - [X] crop-hashtable
       - [X] sanitize-hashtable
-      - [ ] enrich-hashtable
-    - [ ] Database backend for caching: bbdb? [0/2]
+      - [X] enrich-hashtable
+    - [ ] Database for caching: bbdb? [0/2]
       - [ ] Database design
       - [ ] ORM: Data structure <-> Database bridge
-** TODO Complete UI [0/6]
+      - [ ] Cache framework for tweet and DP caching
+	- [ ] Tweet caching
+	- [ ] DP caching
+** TODO Complete UI [0/3]
    - [ ] Rendering tweets [0/2]
-     - [ ] DP fetching and caching
-     - [ ] Caching tweets
+     - [ ] Basic rendering
+     - [ ] Hook rendering to cache
+     - [ ] DP rendering
    - [ ] Tweetdeck panes
-   - [ ] Keybindings 
+   - [ ] Keybindings
+   - [ ] Auto-fetch
+   - [ ] Notifications
 ** TODO Dump new ideas into twsuperapi.el
 * Learning assignments
 ** Processing the output of json-read-from-string

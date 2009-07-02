@@ -51,14 +51,17 @@
 (defun hashtable-parser (response-hashtable)
   "Crops, sanitizes, and enriches hashtable"
   (let* ((user-entry (gethash "user" response-hashtable))
+	 ;; Crop response-hashtable to produce tweet-hashtable
 	 (tweet-hashtable (hashtable-parser-expander
 			   response-hashtable
 			   (alist-to-car-list *tweet-hashtable-select-keys*)))
+	 ;; Crop response-hashtable again to produce user-hashtable
 	 (user-hashtable (hashtable-parser-expander
 			  user-entry
-			  (alist-to-car-list *user-hashtable-select-keys*))))
-    ;; Now merge user-hashtable and tweet-hashtable
-    (merge-hashtable tweet-hashtable user-hashtable)))
+			  (alist-to-car-list *user-hashtable-select-keys*)))
+	 ;; Merge user-hashtable and tweet-hashtable into an eql hashtable (after key mapping)
+	 (merged-hashtable (merge-hashtable tweet-hashtable user-hashtable)))
+    (enrich-hashtable merged-hashtable)))
 
 (defun find-assoc (k)
   (let ((assoc-1 (assoc k *tweet-hashtable-select-keys*)))
@@ -90,7 +93,6 @@
   (if hashtable
       (let ((hashtable (crop-hashtable hashtable select-keys-list)))
 	(maphash (lambda (k v) (setf (gethash k hashtable) (decode-html-entities v))) hashtable)
-	(enrich-hashtable hashtable)
 	hashtable)
       nil))
 
@@ -106,15 +108,25 @@
 
 (defun enrich-hashtable (hashtable)
   "Parses hashtable for information that can be added to it as keys"
-  nil)
+  (let* ((final-hashtable (copy-hash-table hashtable))
+	 (text-extract (extract-text-uri (gethash 'text final-hashtable)))
+	 (source-extract (extract-source-uri (gethash 'source final-hashtable))))
+    (setf (gethash 'uri-list final-hashtable) (cdr text-extract))
+    (setf (gethash 'screen-name-list final-hashtable) (car text-extract))
+    (setf (gethash 'source final-hashtable) source-extract)
+    final-hashtable))
 
 (defun extract-source-uri (source-text)
-  (if (string-match "<a href=\"\\(.*\\)\">\\(.*\\)</a>" source-text)
-      (let ((uri (match-string-no-properties 1 source-text))
-            (caption (match-string-no-properties 2 source-text)))
-	`(,caption . ,uri))))
+  "Extracts the anchor href and text between the anchor in a given text string"
+  (if (equal source-text "web")
+      (cons "web" "http://twitter.com")
+      (if (string-match "<a href=\"\\(.*\\)\">\\(.*\\)</a>" source-text)
+	  (let ((uri (match-string-no-properties 1 source-text))
+		(caption (match-string-no-properties 2 source-text)))
+	    (cons caption uri)))))
 
 (defun extract-text-uri (text)
+  "Extracts mentions of Twitter handles and plain URIs from a given text string"
   (let ((regex-index 0)
 	(screen-name-list '())
 	(uri-list '()))
@@ -169,3 +181,4 @@
         (list-push (substring encoded-str cursor) result)
         (apply 'concat (nreverse result)))
       ""))
+{ enrich-hashtable args: (#<hash-table 'eql nil 2/10 0x869bd68>)

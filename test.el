@@ -1,14 +1,26 @@
-(defun test-1 ()
+(defun master-test ()
   "Testcase: Tree"
   (setf response-hashtable (make-hash-table :test 'equal))
   (setf user-hashtable (make-hash-table :test 'equal))
-  (setf (gethash "text" response-hashtable) "\"Do not try and bend the list. It's impossible. Instead, only try to realize the truth\" \"What truth?\" \"There is no list\" http:\/\/is.gd\/1ihyb")
+  (setf (gethash "text" response-hashtable) "RT @aditya \"Do not try and bend the list. It's impossible. Instead, only try to realize the truth\" \"What truth?\" \"There is no list\" http:\/\/is.gd\/1ihyb @ghoseb @aatifh")
   (setf (gethash "screen_name" user-hashtable) "artagnon")
   (setf (gethash "junk_key" response-hashtable) "morejunk")
+  (setf (gethash "source" response-hashtable) "<a href=\"http:\/\/mobileways.de\/gravity\">Gravity<\/a>")
   (setf (gethash "user" response-hashtable) user-hashtable)
   (hashtable-parser response-hashtable))
 
-(defun test-2 ()
+(defun test-web-source ()
+  "Testcase: Tree"
+  (setf response-hashtable (make-hash-table :test 'equal))
+  (setf user-hashtable (make-hash-table :test 'equal))
+  (setf (gethash "text" response-hashtable) "RT @aditya \"Do not try and bend the list. It's impossible. Instead, only try to realize the truth\" \"What truth?\" \"There is no list\" http:\/\/is.gd\/1ihyb")
+  (setf (gethash "screen_name" user-hashtable) "artagnon")
+  (setf (gethash "junk_key" response-hashtable) "morejunk")
+  (setf (gethash "source" response-hashtable) "web")
+  (setf (gethash "user" response-hashtable) user-hashtable)
+  (hashtable-parser response-hashtable))
+
+(defun test-without-tree ()
   "Testcase: No tree"
   (setf response-hashtable (make-hash-table :test 'equal))
   (setf user-hashtable (make-hash-table :test 'equal))
