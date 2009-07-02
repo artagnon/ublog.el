@@ -1,0 +1,7 @@
+Twitel: Ultimately extensible Twitter client written in Emacs Lisp
+
+Some features:
+- OAuth authentication
+- Configurable keybindings in a dedicated major mode
+- Tweetdeck-like pane functionality provided by multiple vertical frames
+- Gravity-like interface
