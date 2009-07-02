@@ -181,4 +181,23 @@
         (list-push (substring encoded-str cursor) result)
         (apply 'concat (nreverse result)))
       ""))
-{ enrich-hashtable args: (#<hash-table 'eql nil 2/10 0x869bd68>)
+
+(defun twitter-time-to-time (time)
+  "Convert TIME to a number of seconds since some epoch."
+  (let ((case-fold-search t))
+    (if (null (string-match (concat "\\`[a-z]\\{3\\} "
+                                    "\\([a-z]\\{3\\}\\) "
+                                    "\\([0-9]\\{1,2\\}\\) "
+                                    "\\([0-9]\\{2\\}\\):"
+                                    "\\([0-9]\\{2\\}\\):"
+                                    "\\([0-9]\\{2\\}\\) "
+                                    "\\([+-][0-9]\\{2\\}\\)\\([0-9]\\{2\\}\\) "
+                                    "\\([0-9]\\{4\\}\\)\\'") time))
+        (error "Invalid time string: %s" time))
+    (encode-time (string-to-number (match-string 5 time))
+                 (string-to-number (match-string 4 time))
+                 (string-to-number (match-string 3 time))
+                 (string-to-number (match-string 2 time))
+                 (cdr (assoc (match-string 1 time) twitter-month-map))
+                 (string-to-number (match-string 8 time))
+                 (concat (match-string 6 time) ":" (match-string 7 time)))))
