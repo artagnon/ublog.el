@@ -105,55 +105,45 @@
     cropped-hashtable))
 
 (defun enrich-hashtable (hashtable)
+  "Parses hashtable for information that can be added to it as keys"
   nil)
 
-(defun make-clickable (text-snippet begin end target-uri custom-face)
-  ;; make screen-name clickable
-  (add-text-properties
-   begin end
-   `(mouse-face highlight
-                face custom-face
-                uri ,target-uri)
-   text-snippet))
+(defun extract-source-uri (source-text)
+  (if (string-match "<a href=\"\\(.*\\)\">\\(.*\\)</a>" source-text)
+      (let ((uri (match-string-no-properties 1 source-text))
+            (caption (match-string-no-properties 2 source-text)))
+	`(,caption . ,uri))))
 
-(defun screen-name-handler (screen-name)
-  (make-clickable (screen-name 0 (length screen-name)
-                               (concat "http://twitter.com/" screen-name)
-                               twittering-username-face)))
-
-(defun source-handler (source-text)
-  (if (string-match "<a href=\"\\(.*\\)\">\\(.*\\)</a>" source)
-      (let ((uri (match-string-no-properties 1 source))
-            (caption (match-string-no-properties 2 source)))
-        (setq source caption)
-        (make-clickable source 0 (length source) uri twittering-uri-face))))
-
-(defun status-handler (text)
-  (setq regex-index 0)
-  (while regex-index
-    (setq regex-index
-          (string-match "@\\([_a-zA-Z0-9]+\\)\\|\\(https?://[-_.!~*'()a-zA-Z0-9;/?:@&=+$,%#]+\\)"
-                        text
-                        regex-index))
-    (when regex-index
-      (let* ((matched-string (match-string-no-properties 0 text))
-             (screen-name (match-string-no-properties 1 text))
-             (uri (match-string-no-properties 2 text)))
-        (add-text-properties
-         (if screen-name
-             (make-clickable text (+ 1 (match-beginning 0)) (match-end 0)
-                             (concat "http://twitter.com/" screen-name)
-                             twittering-uri-face)
-             (make-clickable text (match-beginning 0) (match-end 0)
-                             uri
-                             twittering-uri-face))))
-      (setq regex-index (match-end 0))))
-  text)
+(defun extract-text-uri (text)
+  (let ((regex-index 0)
+	(screen-name-list '())
+	(uri-list '()))
+    (while regex-index
+      (setq regex-index
+	    (string-match "@\\([_a-zA-Z0-9]+\\)\\|\\(https?://[-_.!~*'()a-zA-Z0-9;/?:@&=+$,%#]+\\)"
+			  text
+			  regex-index))
+      (when regex-index
+	(let* ((matched-string (match-string-no-properties 0 text))
+	       (screen-name (match-string-no-properties 1 text))
+	       (uri (match-string-no-properties 2 text)))
+	  (if screen-name
+	      (push (cons screen-name (concat "http://twitter.com/" screen-name))
+		    screen-name-list)
+	      (push uri uri-list)))
+	(setq regex-index (match-end 0))))
+    (cons screen-name-list uri-list)))
 
 (defmacro list-push (value listvar)
   `(setq ,listvar (cons ,value ,listvar)))
 
+(defmacro twitel-ucs-to-char (num)
+  (if (functionp 'ucs-to-char)
+      `(ucs-to-char ,num)
+    `(decode-char 'ucs ,num)))
+
 (defun decode-html-entities (encoded-str)
+  "Please refer http://www.w3.org/TR/REC-html40/sgml/entities.html"
   (if encoded-str
       (let ((cursor 0)
             (found-at nil)
@@ -168,7 +158,7 @@
             (cond (number-entity
                    (list-push
                     (char-to-string
-                     (twittering-ucs-to-char
+                     (twitel-ucs-to-char
                       (string-to-number number-entity))) result))
                   (letter-entity
                    (cond ((string= "gt" letter-entity) (list-push ">" result))
