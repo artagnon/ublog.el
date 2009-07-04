@@ -26,7 +26,7 @@
   ;; Design based on Gravity
   `(("id" . tweet-id)
     ("favorited" . fav-p)
-    ("created_at" . created-at)
+    ("created_at" . timestamp)
     ("source" . source)
     ("text" . text)
     ("in_reply_to_status_id" . in-reply-to-status-id)))
@@ -42,11 +42,10 @@
   (mapcar #'(lambda (cons-pair) (car cons-pair)) list))
 
 (defun master-parser (response-object)
-  "Master response-object parser"
-  (if (vector-or-char-table-p response-object)
-      (loop for hashtable in vector-of-hashtables
-         do (hashtable-parser hashtable))
-      (hashtable-parser hashtable)))
+  "Loops through a collection of hashtables and collects another list of
+hashtables after applying hashtable-parser to each object"
+  (loop for hashtable in response-object
+     collecting (hashtable-parser hashtable)))
 
 (defun hashtable-parser (response-hashtable)
   "Crops, sanitizes, and enriches hashtable"
