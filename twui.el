@@ -131,3 +131,21 @@ message."
   (interactive)
   (pop-to-buffer "*Twitter Status*")
   (twitter-status-edit-mode))
+
+(defun format-tweet (tweet)
+  "Converts a tweet hashtable into a string that can be rendered"
+  (format "%s | %s | %s\n%s\n\n"
+	  (gethash 'screen-name tweet)
+	  (concat "from " (car (gethash 'source tweet)))
+	  (gethash 'timestamp tweet)
+	  (gethash 'text tweet)))
+
+(defun render-timeline (tweet-list)
+  "Renders a list of tweets"
+  (let ((timeline-buffer (get-buffer-create "*timeline-buffer*")))
+    (with-current-buffer timeline-buffer
+      (let ((inhibit-read-only t))
+	(goto-char (point-min))
+	(mapcar
+	 #'(lambda (tweet-hashtable) (insert (format-tweet tweet-hashtable)))
+	 tweet-list)))))
