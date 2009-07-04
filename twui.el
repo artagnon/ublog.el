@@ -83,14 +83,18 @@ frame configuration."
 ;; Functions
 ;; =========
 
-(defun make-clickable (text-snippet begin end target-uri custom-face)
-  ;; make screen-name clickable
-  (add-text-properties
-   begin end
-   `(mouse-face highlight
-                face custom-face
-                uri ,target-uri)
-   text-snippet))
+(defun insert-links (links-list)
+  "Inserts a link into the current buffer"
+  (mapcar
+   #'(lambda (link)
+       (let ((caption (car link))
+	     (target-uri (cdr link)))
+	 (add-text-properties
+	  (prog1 (point) (insert caption)) (point)
+	  `(mouse-face highlight
+		       uri ,target-uri)))
+       (insert " | "))
+   links-list))
 
 (defun twitter-status-edit-update-length ()
   "Updates the character count in Twitter status buffers.
@@ -132,13 +136,23 @@ message."
   (pop-to-buffer "*Twitter Status*")
   (twitter-status-edit-mode))
 
-(defun format-tweet (tweet)
-  "Converts a tweet hashtable into a string that can be rendered"
-  (format "%s | %s | %s\n%s\n\n"
-	  (gethash 'screen-name tweet)
-	  (concat "from " (car (gethash 'source tweet)))
-	  (gethash 'timestamp tweet)
-	  (gethash 'text tweet)))
+(defun insert-tweet (tweet)
+  "Inserts a tweet into the current buffer"
+  (let ((text (gethash 'text tweet))
+	(screen-name (gethash 'screen-name tweet))
+	(source (car (gethash 'source tweet)))
+	(timestamp (gethash 'timestamp tweet)))
+    (fill-region (prog1 
+		     (point)
+		   (insert (concat screen-name " | " source " | " timestamp)))
+		 (point) 'left)
+    (insert "\n")
+    (fill-region (prog1 (point) (insert text)) (point) 'left)
+    (insert "\n"))
+  (let ((uri-list (gethash 'uri-list tweet))
+	(screen-name-list (gethash 'screen-name-list tweet)))
+    (insert-links (concatenate 'list uri-list screen-name-list)))
+  (insert "\n\n"))
 
 (defun render-timeline (tweet-list)
   "Renders a list of tweets"
@@ -147,5 +161,5 @@ message."
       (let ((inhibit-read-only t))
 	(goto-char (point-min))
 	(mapcar
-	 #'(lambda (tweet-hashtable) (insert (format-tweet tweet-hashtable)))
+	 #'(lambda (tweet-hashtable) (insert-tweet tweet-hashtable))
 	 tweet-list)))))
