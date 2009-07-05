@@ -22,6 +22,21 @@
 
 (provide 'twparse)
 
+(defconst twitter-month-map
+  '(("Jan" . 1)
+    ("Feb" . 2)
+    ("Mar" . 3)
+    ("Apr" . 4)
+    ("May" . 5)
+    ("Jun" . 6)
+    ("Jul" . 7)
+    ("Aug" . 8)
+    ("Sep" . 9)
+    ("Oct" . 10)
+    ("Nov" . 11)
+    ("Dec" . 12))
+  "Assoc list mapping month abbreviations to month numbers")
+
 (defvar *tweet-hashtable-select-keys*
   ;; Design based on Gravity
   `(("id" . tweet-id)
@@ -125,7 +140,8 @@ hashtables after applying hashtable-parser to each object"
 	    (cons caption uri)))))
 
 (defun extract-text-uri (text)
-  "Extracts mentions of Twitter handles and plain URIs from a given text string"
+  "Extracts mentions of Twitter handles and plain URIs from a given text string
+   Links are always formatted as (cons caption target-uri)"
   (let ((regex-index 0)
 	(screen-name-list '())
 	(uri-list '()))
@@ -139,7 +155,7 @@ hashtables after applying hashtable-parser to each object"
 	       (screen-name (match-string-no-properties 1 text))
 	       (uri (match-string-no-properties 2 text)))
 	  (if screen-name
-	      (push (cons screen-name (concat "http://twitter.com/" screen-name))
+	      (push screen-name
 		    screen-name-list)
 	      (push uri uri-list)))
 	(setq regex-index (match-end 0))))

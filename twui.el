@@ -23,6 +23,16 @@
 (provide 'twui)
 (defvar *frame-config-view*)
 
+;; =======================
+;; Buffer names assoc list
+;; =======================
+(defvar *buffer-names-assoc*
+  (list (cons 'own-timeline "*timeline*")
+	(cons 'user-timeline "*user-timeline*")
+	(cons 'search "*search*")
+	(cons 'mentions "*mentions*")))
+
+
 ;; =====================
 ;; Interactive functions
 ;; =====================
@@ -75,23 +85,33 @@ frame configuration."
   ;; Update the mode line immediatly
   (twitter-status-edit-update-length))
 
-(define-derived-mode twitter-timeline-view-mode fundamental-mode
-  "Twitter Timeline"
-  "Major mode for viewing timelines from Twitter.")
+(define-derived-mode timeline-view-mode view-mode
+  "Twitter TimelineMajor mode for viewing timelines from Twitter")
 
 ;; =========
 ;; Functions
 ;; =========
 
-(defun make-link-clickable (link)
-  "Inserts a link into the current buffer"
-  (let ((caption (car link))
-	(target-uri (cdr link)))
-    (add-text-properties
-     0 (length caption)
-     `(mouse-face highlight
-		  uri ,target-uri) caption)
+(defun make-screen-name-button (screen-name)
+  "Inserts a link to screen-name into the current buffer"
+  (let* ((caption (concat "@" (copy-seq screen-name)))
+	 (target-uri (concat "http://twitter.com/" caption)))
+    (make-text-button caption nil
+;;		      'action (let ((buf-name (cdr  (assoc 'user-timeline *buffer-names-assoc*)))) 
+;;				(twitter-user-timeline nil nil screen-name)
+;;				(get-buffer-create buf-name)
+;;				(switch-to-buffer buf-name))
+		      'uri target-uri
+		      'follow-link target-uri)
     caption))
+
+(defun make-uri-button (link)
+  "Inserts an external link into the current buffer"
+  (let ((link (copy-seq link)))
+    (make-text-button link nil
+		   'uri link
+		   'follow-link link)
+    link))
 
 (defun twitter-status-edit-update-length ()
   "Updates the character count in Twitter status buffers.
@@ -133,32 +153,36 @@ message."
   (pop-to-buffer "*Twitter Status*")
   (twitter-status-edit-mode))
 
+(defun fill-line (&rest text)
+  "Carefully fills region with text tracking point"
+  (fill-region (prog1
+		   (point)
+		 (insert (apply 'concat text)))
+	       (progn (backward-char) (point)))
+  (insert "\n"))
+
 (defun insert-tweet (tweet)
   "Inserts a tweet into the current buffer"
+  (beginning-of-buffer)
   (let ((text (gethash 'text tweet))
 	(screen-name (gethash 'screen-name tweet))
 	(source (car (gethash 'source tweet)))
 	(timestamp (gethash 'timestamp tweet)))
-    (fill-region (prog1
-		     (point)
-		   (insert screen-name " | " source " | " timestamp))
-		 (point) 'left)
-    (insert "\n")
-    (fill-region (prog1 (point) (insert text)) (point) 'left)
-    (insert "\n"))
-  (let ((uri-list (gethash 'uri-list tweet))
-	(screen-name-list (gethash 'screen-name-list tweet)))
-    (fill-region
-     (prog1 (point) 
-       (insert
-	(mapconcat #'(lambda (link) (make-link-clickable link))
-		   (concatenate 'list uri-list screen-name-list) " | ")))
-     (point)))
+    (fill-line screen-name " | " source " | " timestamp)
+    (fill-line text))
+  (let* ((uri-list (gethash 'uri-list tweet))
+	 (screen-name-list (gethash 'screen-name-list tweet)))
+    (fill-line
+     (mapconcat #'(lambda (uri)
+		    (make-uri-button uri)) uri-list " | ")
+     (if screen-name-list " | " "")
+     (mapconcat #'(lambda (screen-name)
+		    (make-screen-name-button screen-name)) screen-name-list " | ")))
   (insert "\n\n"))
 
-(defun render-timeline (tweet-list)
+(defun render-timeline (tweet-list buf-name)
   "Renders a list of tweets"
-  (let ((timeline-buffer (get-buffer-create "*timeline-buffer*")))
+  (let ((timeline-buffer (get-buffer-create (cdr (assoc buf-name *buffer-names-assoc*)))))
     (with-current-buffer timeline-buffer
       (let ((inhibit-read-only t))
 	(goto-char (point-min))
