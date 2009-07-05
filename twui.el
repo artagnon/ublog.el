@@ -83,18 +83,15 @@ frame configuration."
 ;; Functions
 ;; =========
 
-(defun insert-links (links-list)
+(defun make-link-clickable (link)
   "Inserts a link into the current buffer"
-  (mapcar
-   #'(lambda (link)
-       (let ((caption (car link))
-	     (target-uri (cdr link)))
-	 (add-text-properties
-	  (prog1 (point) (insert caption)) (point)
-	  `(mouse-face highlight
-		       uri ,target-uri)))
-       (insert " | "))
-   links-list))
+  (let ((caption (car link))
+	(target-uri (cdr link)))
+    (add-text-properties
+     0 (length caption)
+     `(mouse-face highlight
+		  uri ,target-uri) caption)
+    caption))
 
 (defun twitter-status-edit-update-length ()
   "Updates the character count in Twitter status buffers.
@@ -142,16 +139,21 @@ message."
 	(screen-name (gethash 'screen-name tweet))
 	(source (car (gethash 'source tweet)))
 	(timestamp (gethash 'timestamp tweet)))
-    (fill-region (prog1 
+    (fill-region (prog1
 		     (point)
-		   (insert (concat screen-name " | " source " | " timestamp)))
+		   (insert screen-name " | " source " | " timestamp))
 		 (point) 'left)
     (insert "\n")
     (fill-region (prog1 (point) (insert text)) (point) 'left)
     (insert "\n"))
   (let ((uri-list (gethash 'uri-list tweet))
 	(screen-name-list (gethash 'screen-name-list tweet)))
-    (insert-links (concatenate 'list uri-list screen-name-list)))
+    (fill-region
+     (prog1 (point) 
+       (insert
+	(mapconcat #'(lambda (link) (make-link-clickable link))
+		   (concatenate 'list uri-list screen-name-list) " | ")))
+     (point)))
   (insert "\n\n"))
 
 (defun render-timeline (tweet-list)
