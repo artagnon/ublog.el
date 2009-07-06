@@ -23,15 +23,18 @@
 (provide 'twui)
 (defvar *frame-config-view*)
 
-;; =======================
-;; Buffer names assoc list
-;; =======================
+;; ================
+;; Global variables
+;; ================
 (defvar *buffer-names-assoc*
   (list (cons 'own-timeline "*timeline*")
 	(cons 'user-timeline "*user-timeline*")
 	(cons 'search "*search*")
 	(cons 'mentions "*mentions*")))
 
+;; TODO: `artagnon' cannot be hardcoded here!
+(defvar *dp-cache-dir* "/home/artagnon/.twitel/dp-cache")
+(defvar *dp-cache-stack* '())
 
 ;; =====================
 ;; Interactive functions
@@ -163,15 +166,17 @@ message."
 
 (defun insert-tweet (tweet)
   "Inserts a tweet into the current buffer"
-  (beginning-of-buffer)
+  (goto-char (point-min))
   (let ((text (gethash 'text tweet))
 	(screen-name (gethash 'screen-name tweet))
 	(source (car (gethash 'source tweet)))
-	(timestamp (gethash 'timestamp tweet)))
-    (fill-line screen-name " | " source " | " timestamp)
-    (fill-line text))
-  (let* ((uri-list (gethash 'uri-list tweet))
-	 (screen-name-list (gethash 'screen-name-list tweet)))
+	(timestamp (gethash 'timestamp tweet))
+	(dp-url (gethash 'dp-url tweet))
+	(uri-list (gethash 'uri-list tweet))
+	(screen-name-list (gethash 'screen-name-list tweet)))
+    (insert-image (build-image-descriptor dp-url) nil)
+    (fill-line " " screen-name " | " source " | " timestamp)
+    (fill-line text)
     (fill-line
      (mapconcat #'(lambda (uri)
 		    (make-uri-button uri)) uri-list " | ")
@@ -189,3 +194,34 @@ message."
 	(mapcar
 	 #'(lambda (tweet-hashtable) (insert-tweet tweet-hashtable))
 	 tweet-list)))))
+
+(defun guess-image-type-extn (file-name)
+  (cond
+   ((string-match "\\.jpe?g" file-name) 'jpeg)
+   ((string-match "\\.png" file-name) 'png)
+   ((string-match "\\.gif" file-name) 'gif)
+   (t nil)))
+
+(defun build-image-descriptor (filename-uri-pair)
+  (let* ((filename (car filename-uri-pair))
+	 (uri (cdr filename-uri-pair))
+	 (filepath (concat *dp-cache-dir* "/" filename)))
+    (unless (file-exists-p filepath) (push (cons filename uri) *dp-fetch-queue*))
+    (create-image filepath (guess-image-type-extn filename) nil)))
+
+(defun fetch-resize-dp ()
+  "Fetch the display pics in *dp-fetch-queue*: An alist of (filename . uri)"
+  (start-process "wget-images" nil "wget"
+		 (format "--directory-prefix=%s" *dp-cache-dir*)
+		 "--no-clobber"
+		 "--quiet"
+		 (mapconcat #'cdr
+			    *dp-fetch-queue* " "))
+  (start-process "mogrify-resize" nil "mogrify"
+		 "-resize"
+		 "96"
+		 (mapconcat #'(lambda (cons-pair)
+				(concat *dp-cache-dir* "/" (car cons-pair)))
+			    *dp-fetch-queue* " "))
+  (setq *dp-fetch-queue* '()))
+{ insert-tweet args: (#<hash-table 'eql nil 7/10 0x878b458>)

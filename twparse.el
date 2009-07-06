@@ -50,7 +50,7 @@
   ;; Design based on Gravity
   `(("id" . user-id)
     ("screen_name" . screen-name)
-    ("profile_image_url" . profile-image-url)
+    ("profile_image_url" . dp-url)
     ("following" . following-p)))
 
 (defun alist-to-car-list (list)
@@ -124,10 +124,12 @@ hashtables after applying hashtable-parser to each object"
   "Parses hashtable for information that can be added to it as keys"
   (let* ((final-hashtable (copy-hash-table hashtable))
 	 (text-extract (extract-text-uri (gethash 'text final-hashtable)))
-	 (source-extract (extract-source-uri (gethash 'source final-hashtable))))
+	 (source-extract (extract-source-uri (gethash 'source final-hashtable)))
+	 (dp-extract (extract-dp-filename-uri (gethash 'dp-url final-hashtable))))
     (setf (gethash 'uri-list final-hashtable) (cdr text-extract))
     (setf (gethash 'screen-name-list final-hashtable) (car text-extract))
     (setf (gethash 'source final-hashtable) source-extract)
+    (setf (gethash 'dp-url final-hashtable) dp-extract)
     final-hashtable))
 
 (defun extract-source-uri (source-text)
@@ -160,6 +162,11 @@ hashtables after applying hashtable-parser to each object"
 	      (push uri uri-list)))
 	(setq regex-index (match-end 0))))
     (cons screen-name-list uri-list)))
+
+(defun extract-dp-filename-uri (uri)
+  (string-match "/\\([^/?]+\\)\\(?:\\?\\|$\\)" uri)
+  (let ((filename (match-string-no-properties 1 uri)))
+    (cons filename uri)))
 
 (defmacro list-push (value listvar)
   `(setq ,listvar (cons ,value ,listvar)))
