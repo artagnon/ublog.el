@@ -174,8 +174,8 @@ message."
 	(dp-url (gethash 'dp-url tweet))
 	(uri-list (gethash 'uri-list tweet))
 	(screen-name-list (gethash 'screen-name-list tweet)))
-    (insert-image (build-image-descriptor dp-url) nil)
-    (fill-line " " screen-name " | " source " | " timestamp)
+    (insert-image (build-image-descriptor dp-url) nil 'left-margin)
+    (fill-line screen-name " | " source " | " timestamp)
     (fill-line text)
     (fill-line
      (mapconcat #'(lambda (uri)
@@ -189,6 +189,8 @@ message."
   "Renders a list of tweets"
   (let ((timeline-buffer (get-buffer-create (cdr (assoc buf-name *buffer-names-assoc*)))))
     (with-current-buffer timeline-buffer
+      (setq left-margin-width 6)
+      (setq fringes-outside-margins t)
       (let ((inhibit-read-only t))
 	(goto-char (point-min))
 	(mapcar
