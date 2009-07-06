@@ -209,19 +209,19 @@ message."
     (unless (file-exists-p filepath) (push (cons filename uri) *dp-fetch-queue*))
     (create-image filepath (guess-image-type-extn filename) nil)))
 
-(defun fetch-resize-dp ()
+(defun fetch-beautify-dp ()
   "Fetch the display pics in *dp-fetch-queue*: An alist of (filename . uri)"
-  (start-process "wget-images" nil "wget"
-		 (format "--directory-prefix=%s" *dp-cache-dir*)
-		 "--no-clobber"
-		 "--quiet"
-		 (mapconcat #'cdr
-			    *dp-fetch-queue* " "))
-  (start-process "mogrify-resize" nil "mogrify"
-		 "-resize"
-		 "96"
-		 (mapconcat #'(lambda (cons-pair)
-				(concat *dp-cache-dir* "/" (car cons-pair)))
-			    *dp-fetch-queue* " "))
+  (mapc
+   #'(lambda (cons-pair)
+       (start-process-shell-command
+	"dp-fetcher"
+	nil
+	(format
+	 (concat "wget -O - %s -q "
+		 "| convert - -resize 48 - "
+		 "| composite -compose Dst_In "
+		 "-gravity center -matte round_mask_48.png - %s")
+	 (cdr cons-pair)
+	 (concat *dp-cache-dir* "/" (car cons-pair)))))
+   *dp-fetch-queue*)
   (setq *dp-fetch-queue* '()))
-{ insert-tweet args: (#<hash-table 'eql nil 7/10 0x878b458>)

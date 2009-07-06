@@ -52,12 +52,12 @@
      - [ ] Cache framework for tweet and DP caching
        - [ ] Tweet caching
        - [ ] DP caching
-* IN-PROGRESS Complete UI [0/5]
-  - [-] Rendering tweets [1/3]
+* IN-PROGRESS Complete UI [0/6]
+  - [-] Rendering tweets [3/4]
     - [X] Basic rendering
-    - [ ] Enchance rendering
+    - [X] Enhance rendering with buttons
     - [ ] Hook rendering to cache
-    - [ ] DP rendering
+    - [X] DP rendering
   - [ ] Interactive functions and major mode for interacting with rendered tweets
   - [ ] Tweetdeck panes
   - [ ] Keybindings
