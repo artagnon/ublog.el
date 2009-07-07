@@ -227,3 +227,34 @@ message."
 	 (concat *dp-cache-dir* "/" (car cons-pair)))))
    *dp-fetch-queue*)
   (setq *dp-fetch-queue* '()))
+
+(defun format-twitter-time (time)
+  "Convert TIME to a friendly human readable string.
+TIME should be a high/low pair as returned by encode-time."
+  ;; This is based on a similar function from Tweet
+  (let* ((now (current-time))
+         (age (subtract-time now time))
+         (age-days (- (time-to-days now) (time-to-days time))))
+    (if (or (< (car age) 0)
+            (>= (car age) 16) ; more than about 12 days
+            (>= age-days 7))
+        (format-time-string "%x at %H:%M" time)
+      (let* ((age-seconds (logior (lsh (car age) 16) (cadr age)))
+             (age-minutes (/ age-seconds 60))
+             (age-hours (/ age-minutes 60)))
+        (cond ((< age-seconds 60)
+               "Less than a minute ago")
+              ((<= age-minutes 1)
+               "About a minute ago")
+              ((< age-minutes 60)
+               (format "About %d minutes ago" age-minutes))
+              ((<= age-hours 1)
+               "About an hour ago")
+              ((< age-minutes 360)
+               (format "About %d hours ago" age-hours))
+              ((<= age-days 0)
+               (format-time-string "Today at %H:%M" time))
+              ((<= age-days 1)
+               (format-time-string "Yesterday at %H:%M" time))
+              (t
+               (format-time-string "Last %A at %H:%M" time)))))))
