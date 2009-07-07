@@ -20,10 +20,10 @@
 ;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 ;; Boston, MA 02110-1301, USA.
 
-(provide 'twui)
 (require 'json)
 (require 'url)
 (require 'twparse)
+(require 'twapi)
 (require 'twhelper)
 (require 'oauth)
 
@@ -67,9 +67,8 @@
 
 ;; TODO: `artagnon' cannot be hardcoded here!
 (defvar *dp-cache-dir* "/home/artagnon/.twitel/dp-cache")
-(defvar *dp-cache-stack* '())
+(defvar *dp-fetch-queue* '())
 (defvar *frame-config-view* nil)
-
 
 ;; Keymaps
 (defvar status-edit-mode-map
@@ -93,6 +92,14 @@
 ;; =====================
 ;; Interactive functions
 ;; =====================
+
+(defun twitter-init ()
+  "Check if the configuration directory exists and authenticate"
+  (interactive)
+  (mapc #'(lambda (directory) (create-dir-noexist directory))
+	'("~/.twitel" "~/.twitel/dp-cache" "~/.twitel/tweet-cache"))
+  (twitter-authenticate)
+  (twitter-friends-timeline))
 
 (defun update-status-minibuffer ()
   "Update status from the minibuffer"
@@ -195,12 +202,11 @@
 ;; Functions
 ;; =========
 
-(defun twitel-master-callback (status)
+(defun twitter-http-callback (status)
   "Function gets called with current-buffer as the response dump of a HTTP request"
   (if (error-status-p status)
       ;; What to do if an error has occured
       (error (message (error-status-to-string status)))
-      
       (let* ((response-dump (buffer-string))
 	     (http-info (extract-http-info response-dump))
 	     (json-object-type 'hash-table))
@@ -209,28 +215,20 @@
 		      (message "Success"))
 		     (t
 		      (message status)))
-	;; Now extract the response-body and parse the json
-	;; This is either a hashtable or a vector of hashtables; handle appropriately
-	(let ((parsed-object (json-read-from-string (cdr http-info))))
-	  (render-timeline (master-parser
-			    (if (vectorp parsed-object)
-				parsed-object
-				(list parsed-object)))
-			   'own)))))
+	(save-excursion
+	  (let ((parsed-object (json-read-from-string (cdr http-info))))
+	    (render-timeline
+	     (master-response-parser
+	      parsed-object)
+	     'own)))
+	(kill-buffer))))
 
 (defun create-dir-noexist (directory)
   (if (file-directory-p directory)
       nil
       (make-directory directory)))
 
-(defun twitel-init ()
-  "Check if the configuration directory exists and authenticate"
-  (interactive)
-  (mapc #'(lambda (directory) (create-dir-noexist directory))
-	'("~/.twitel" "~/.twitel/dp-cache" "~/.twitel/tweet-cache"))
-  (twitel-authenticate))
-
-(defun twitel-authenticate ()
+(defun twitter-authenticate ()
   "Get authentication token"
   (if (file-exists-p *twitel-token-file*)
       ;; Enter this only after authenticating the first time
@@ -295,7 +293,7 @@
 			      *twitter-response-format*
 			      (if parameters (build-url-parameters parameters) ""))
 		      http-method
-		      'twitel-master-callback))
+		      'twitter-http-callback))
 
 (defun make-screen-name-button (screen-name)
   "Inserts a link to screen-name into the current buffer"
@@ -363,8 +361,7 @@ message."
   (fill-region (prog1
 		   (point)
 		 (insert (apply 'concat text)))
-	       (progn (backward-char) (point)))
-  (insert "\n"))
+	       (progn (backward-char) (point))))
 
 (defun insert-tweet (tweet)
   "Inserts a tweet into the current buffer"
@@ -381,13 +378,17 @@ message."
 	(fav-p (gethash 'fav-p tweet)))
     (insert-image (build-image-descriptor dp-url) nil 'left-margin)
     (fill-line screen-name " | " source " | " (format-twitter-time timestamp))
+    (insert "\n")
     (fill-line text)
-    (fill-line
-     (mapconcat #'(lambda (uri)
-		    (make-uri-button uri)) uri-list " | ")
-     (if screen-name-list " | " "")
-     (mapconcat #'(lambda (screen-name)
-		    (make-screen-name-button screen-name)) screen-name-list " | "))
+    (insert "\n")
+    (when (and screen-name uri-list)
+      (fill-line
+       (mapconcat #'(lambda (uri)
+		      (make-uri-button uri)) uri-list " | ")
+       (if screen-name-list " | ")
+       (mapconcat #'(lambda (screen-name)
+		      (make-screen-name-button screen-name)) screen-name-list " | "))
+      (insert "\n"))
     (insert "\n")
   
     ;; Tweet inserted. Now add text properties to the tweet
@@ -395,7 +396,8 @@ message."
 			 `(tweet-id
 			   ,tweet-id
 			   tweet-author-screen-name
-			   ,screen-name))))
+			   ,screen-name)))
+  (fetch-beautify-dp))
 
 (defun render-timeline (tweet-list buf-name)
   "Renders a list of tweets"
@@ -419,9 +421,10 @@ message."
 (defun build-image-descriptor (filename-uri-pair)
   (let* ((filename (car filename-uri-pair))
 	 (uri (cdr filename-uri-pair))
-	 (filepath (concat *dp-cache-dir* "/" filename)))
+	 (filepath (concat *dp-cache-dir* "/" filename))
+	 (file-type (guess-image-type-extn filename)))
     (unless (file-exists-p filepath) (push (cons filename uri) *dp-fetch-queue*))
-    (create-image filepath (guess-image-type-extn filename) nil)))
+    (if file-type (create-image filepath file-type nil))))
 
 (defun fetch-beautify-dp ()
   "Fetch the display pics in *dp-fetch-queue*: An alist of (filename . uri)"

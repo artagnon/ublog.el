@@ -10,6 +10,7 @@
 ** hmc-sha1.el lifted from Derek Upham's repo. Unmodified
 ** twparse.el contains code to map json response to user variables. Needs lots of work
 
+Development tracker
 * DONE Unit test all the init functions and get OAuth authentication working [5/5]
   CLOSED: [2009-06-27 Sat 03:08]
   - CLOSING NOTE [2009-06-27 Sat 03:09] \\
@@ -50,7 +51,7 @@
      - [ ] Cache framework for tweet and DP caching
        - [ ] Tweet caching
        - [ ] DP caching
-* IN-PROGRESS Complete UI [2/6]
+* IN-PROGRESS Complete UI [3/7]
   - [-] Rendering tweets [3/4]
     - [X] Basic rendering
     - [X] Enhance rendering with buttons
@@ -61,5 +62,12 @@
   - [X] Keybindings
   - [ ] Auto-fetch interval
   - [ ] Notifications: WONTFIX
-  - [ ] Binding glue
+  - [X] Binding glue
 * TODO Dump new ideas into twsuperapi.el
+
+Bugs and enhancement tasks
+* TODO forward-tweet and backward-tweet don't work: Propertize properly
+* TODO Stylize the first line of tweet entity
+* TODO Reduce column size to get Tweetdeck panes
+* TODO Synchronous hang- Is it the DP fetcher?
+* TODO Inconsistent timestamp display

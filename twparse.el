@@ -56,10 +56,10 @@
 (defun alist-to-car-list (list)
   (mapcar #'(lambda (cons-pair) (car cons-pair)) list))
 
-(defun master-parser (response-object)
+(defun master-response-parser (response-object)
   "Loops through a collection of hashtables and collects another list of
 hashtables after applying hashtable-parser to each object"
-  (loop for hashtable in response-object
+  (loop for hashtable across response-object
      collecting (hashtable-parser hashtable)))
 
 (defun hashtable-parser (response-hashtable)
@@ -106,7 +106,10 @@ hashtables after applying hashtable-parser to each object"
 (defun hashtable-parser-expander (hashtable select-keys-list)
   (if hashtable
       (let ((hashtable (crop-hashtable hashtable select-keys-list)))
-	(maphash (lambda (k v) (setf (gethash k hashtable) (decode-html-entities v))) hashtable)
+	(maphash (lambda (k v) (setf (gethash k hashtable)
+				     (if (stringp v)
+					 (decode-html-entities v))))
+		 hashtable)
 	hashtable)
       nil))
 
@@ -225,3 +228,4 @@ hashtables after applying hashtable-parser to each object"
                  (cdr (assoc (match-string 1 time) twitter-month-map))
                  (string-to-number (match-string 8 time))
                  (concat (match-string 6 time) ":" (match-string 7 time)))))
+
