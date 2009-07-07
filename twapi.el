@@ -55,9 +55,16 @@
 		   "GET"
 		   `(("since" . ,since))))
 
-(defun twitter-user-timeline (&optional since)
+(defun twitter-user-timeline (&optional id user-id screen-name since-id max-id count page)
   (twitter-request (twitter-url (format "%s/%s" "statuses" "user_timeline"))
-		   "GET"))
+		   "GET"
+		   `(("id" . ,id)
+		     ("user_id" . ,user-id)
+		     ("screen_name" . ,screen-name)
+		     ("since_id" . ,since-id)
+		     ("max_id" . ,max-id)
+		     ("count" . ,count)
+		     ("page" . ,page))))
 
 (defun twitter-mentions (&optional since)
   (twitter-request (twitter-url (format "%s/%s" "statuses" "mentions"))

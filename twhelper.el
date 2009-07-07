@@ -93,9 +93,13 @@
     (cons response-status response-body)))
 
 (defun error-status-p (error-list)
+  "Was an error encountered?"
+  ;; TODO: Unimplemented!
   nil)
 
 (defun error-status-to-string (error-list)
+  "Build error string"
+  ;; TODO: Unimplemented!
   nil)
 
 (defmacro union (list-1 list-2)
