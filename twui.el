@@ -26,40 +26,113 @@
 ;; ================
 ;; Global variables
 ;; ================
+
 (defvar *buffer-names-assoc*
-  (list (cons 'own-timeline "*timeline*")
-	(cons 'user-timeline "*user-timeline*")
+  (list (cons 'own "*timeline*")
+	(cons 'user "*user-timeline*")
 	(cons 'search "*search*")
 	(cons 'mentions "*mentions*")))
+(defvar *max-status-len* 140)
+(defface *exceed-warn-face*
+  '((t (:foreground "red"))) "Face used to highlight extra characters")
+
 
 ;; TODO: `artagnon' cannot be hardcoded here!
 (defvar *dp-cache-dir* "/home/artagnon/.twitel/dp-cache")
 (defvar *dp-cache-stack* '())
 
+;; Keymaps
+(defvar status-edit-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\C-c\C-c" 'update-status-buffer-string)
+    (define-key map "\C-c\C-k" 'kill-status-buffer)
+    map)
+  "Keymap for `status-edit-mode'")
+
+(defvar timeline-view-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\C-n" 'forward-tweet)
+    (define-key map "\C-p" 'backward-tweet)
+    (define-key map "\C-f" 'forward-button)
+    (define-key map "\C-b" 'backward-button)
+    (define-key map "\C-cr" 'reply-to-this-tweet)
+    (define-key map "\C-c\C-r" 'retweet-this-tweet)
+    map)
+  "Keymap for `timeline-view-mode'")
+
 ;; =====================
 ;; Interactive functions
 ;; =====================
-(defun update-status-minibuffer (status)
+
+(defun update-status-minibuffer ()
+  "Update status from the minibuffer"
   (interactive)
   (let status (read-string "Status: ")
        (twitter-update-status (url-hexify-string status))))
 
-(defun twitter-kill-status-buffer ()
-  "Kill the *Twitter Status* buffer and restore the previous
-frame configuration."
+(defun zbuffer-popout ()
+  "Pops out a special zbuffer for editing tweets"
+  (setq twitter-frame-configuration (current-frame-configuration))
+  (interactive)
+  (pop-to-buffer "*zbuffer*")
+  (zbuffer-mode))
+
+(defun update-status-buffer-string ()
+  "Update status with contents of current buffer"
+  (interactive)
+  (twitter-update-status (url-hexify-string (buffer-string))))
+
+(defun reply-to-this-tweet (pos)
+  "Reply to tweet at point"
+  (interactive "d")
+  (let ((status-id (get-text-property pos 'tweet-id))
+	(status-screen-name (get-text-property pos 'tweet-author-screen-name)))
+    (when (null status-screen-name)
+      (error "Missing screen name in status"))
+    (when (null status-id)
+      (error "Missing status id"))
+    (zbuffer-popout)
+    (setq twitter-reply-status-id status-id)
+    (insert "@" status-screen-name " ")))
+
+(defun retweet-this-tweet (pos)
+  "Retweet tweet at point"
+  (interactive "d")
+  (let ((status-id (get-text-property pos 'tweet-id))
+	(status-screen-name (get-text-property pos 'tweet-author-screen-name)))
+    (when (null status-screen-name)
+      (error "Missing screen name in status"))
+    (when (null status-id)
+      (error "Missing status id"))
+    (zbuffer-popout)
+    (insert "RT @" status-screen-name ": ")))
+
+(defun kill-status-buffer ()
+  "Kill the *Twitter Status* buffer and restore the previous frame configuration."
   (interactive)
   (kill-buffer "*Twitter Status*")
   (set-frame-configuration twitter-frame-configuration))
 
-;; ===========
-;; Keybindings
-;; ===========
+(defun forward-tweet (pos)
+  "Jump to next tweet"
+  (interactive "d")
+  (goto-char (next-single-property-change pos 'tweet-id)))
+
+(defun backward-tweet (pos)
+  "Jump to next tweet"
+  (interactive "d")
+  (goto-char (previous-single-property-change pos 'tweet-id)))
 
 ;; =====
 ;; Modes
 ;; =====
 
-(define-derived-mode twitter-status-edit-mode text-mode "Twitter Status Edit"
+(define-derived-mode timeline-view-mode view-mode "Timeline view"
+  "Major mode for viewing Twitter timelines"
+  (setf left-margin-width 6
+	fringes-outside-margins t))
+
+(define-derived-mode zbuffer-mode text-mode "Status edit"
   "Major mode for updating your Twitter status."
   ;; Schedule to update the character count after altering the buffer
   (make-local-variable 'after-change-functions)
@@ -87,9 +160,6 @@ frame configuration."
   (setq twitter-reply-status-id nil)
   ;; Update the mode line immediatly
   (twitter-status-edit-update-length))
-
-(define-derived-mode timeline-view-mode view-mode
-  "Twitter TimelineMajor mode for viewing timelines from Twitter")
 
 ;; =========
 ;; Functions
@@ -123,23 +193,23 @@ characters after the maximum status update length are
 hightlighted in the face twitter-status-overlong-face and the
 character count on the mode line is updated."
   ;; Update the remaining characters in the mode line
-  (let ((remaining (- twitter-maximum-status-length
+  (let ((remaining (- *max-status-len*
                       (buffer-size))))
     (setq twitter-status-edit-remaining-length
           (concat " "
                   (if (>= remaining 0)
                       (number-to-string remaining)
                     (propertize (number-to-string remaining)
-                                'face 'twitter-status-overlong-face))
+                                'face 'exceed-warn-face))
                   " ")))
   (force-mode-line-update)
   ;; Highlight the characters in the buffer that are over the limit
-  (if (> (buffer-size) twitter-maximum-status-length)
-      (let ((start (+ (point-min) twitter-maximum-status-length)))
+  (if (> (buffer-size) *max-status-len*)
+      (let ((start (+ (point-min) *max-status-length*)))
         (if (null twitter-status-edit-overlay)
             (overlay-put (setq twitter-status-edit-overlay
                                (make-overlay start (point-max)))
-                         'face 'twitter-status-overlong-face)
+                         'face 'exceed-warn-face)
           (move-overlay twitter-status-edit-overlay
                         start (point-max))))
     ;; Buffer is not too long so just hide the overlay
@@ -166,31 +236,41 @@ message."
 
 (defun insert-tweet (tweet)
   "Inserts a tweet into the current buffer"
-  (goto-char (point-min))
-  (let ((text (gethash 'text tweet))
+  (goto-char (point-min))  
+  (let ((tweet-begin (point))
+	(tweet-id (gethash 'tweet-id tweet))
+	(text (gethash 'text tweet))
 	(screen-name (gethash 'screen-name tweet))
 	(source (car (gethash 'source tweet)))
 	(timestamp (gethash 'timestamp tweet))
 	(dp-url (gethash 'dp-url tweet))
 	(uri-list (gethash 'uri-list tweet))
-	(screen-name-list (gethash 'screen-name-list tweet)))
+	(screen-name-list (gethash 'screen-name-list tweet))
+	(fav-p (gethash 'fav-p tweet)))
     (insert-image (build-image-descriptor dp-url) nil 'left-margin)
-    (fill-line screen-name " | " source " | " timestamp)
+    (fill-line screen-name " | " source " | " (format-twitter-time timestamp))
     (fill-line text)
     (fill-line
      (mapconcat #'(lambda (uri)
 		    (make-uri-button uri)) uri-list " | ")
      (if screen-name-list " | " "")
      (mapconcat #'(lambda (screen-name)
-		    (make-screen-name-button screen-name)) screen-name-list " | ")))
-  (insert "\n\n"))
+		    (make-screen-name-button screen-name)) screen-name-list " | "))
+    (insert "\n")
+  
+    ;; Tweet inserted. Now add text properties to the tweet
+    (add-text-properties tweet-begin (point)
+			 `(tweet-id
+			   ,tweet-id
+			   tweet-author-screen-name
+			   ,screen-name))))
 
 (defun render-timeline (tweet-list buf-name)
   "Renders a list of tweets"
   (let ((timeline-buffer (get-buffer-create (cdr (assoc buf-name *buffer-names-assoc*)))))
     (with-current-buffer timeline-buffer
-      (setq left-margin-width 6)
-      (setq fringes-outside-margins t)
+      (kill-all-local-variables)
+      (timeline-view-mode)
       (let ((inhibit-read-only t))
 	(goto-char (point-min))
 	(mapcar
