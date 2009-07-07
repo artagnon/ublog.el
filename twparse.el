@@ -131,8 +131,8 @@ hashtables after applying hashtable-parser to each object"
 	 (source-extract (extract-source-uri (gethash 'source final-hashtable)))
 	 (dp-extract (extract-dp-filename-uri (gethash 'dp-url final-hashtable)))
 	 (unix-timestamp (twitter-time-to-time (gethash 'timestamp final-hashtable))))
-    (setf (gethash 'uri-list final-hashtable) (cdr text-extract))
-    (setf (gethash 'screen-name-list final-hashtable) (car text-extract))
+    (setf (gethash 'uri-list final-hashtable) (second text-extract))
+    (setf (gethash 'screen-name-list final-hashtable) (first text-extract))
     (setf (gethash 'source final-hashtable) source-extract)
     (setf (gethash 'dp-url final-hashtable) dp-extract)
     (setf (gethash 'timestamp final-hashtable) unix-timestamp)
@@ -162,12 +162,10 @@ hashtables after applying hashtable-parser to each object"
 	(let* ((matched-string (match-string-no-properties 0 text))
 	       (screen-name (match-string-no-properties 1 text))
 	       (uri (match-string-no-properties 2 text)))
-	  (if screen-name
-	      (push screen-name
-		    screen-name-list)
-	      (push uri uri-list)))
+	  (when screen-name (push screen-name screen-name-list))
+	  (when uri (push uri uri-list)))
 	(setq regex-index (match-end 0))))
-    (cons screen-name-list uri-list)))
+    (list screen-name-list uri-list)))
 
 (defun extract-dp-filename-uri (uri)
   (string-match "/\\([^/?]+\\)\\(?:\\?\\|$\\)" uri)
@@ -229,4 +227,3 @@ hashtables after applying hashtable-parser to each object"
                  (cdr (assoc (match-string 1 time) twitter-month-map))
                  (string-to-number (match-string 8 time))
                  (concat (match-string 6 time) ":" (match-string 7 time)))))
-

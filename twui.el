@@ -61,14 +61,30 @@
 	(cons 'search "*search*")
 	(cons 'mentions "*mentions*")))
 (defvar *max-status-len* 140)
-(defface *exceed-warn-face*
-  '((t (:foreground "red"))) "Face used to highlight extra characters")
-
 
 ;; TODO: `artagnon' cannot be hardcoded here!
 (defvar *dp-cache-dir* "/home/artagnon/.twitel/dp-cache")
+(defvar *dp-fetch-p* nil)
 (defvar *dp-fetch-queue* '())
 (defvar *frame-config-view* nil)
+(defvar *dp-resize-size* 48)
+(defvar *wget-executable-path* "wget")
+(defvar *composite-executable-path* "composite")
+(defvar *composite-executable-path* "convert")
+(defvar *image-mask-path* "round_mask_48.png")
+(defvar *round-cornors-p* nil)
+
+;; Faces
+(defface exceed-warn-face
+    '((t (:foreground "red"))) "Face used to highlight extra characters")
+(defface highlight-current-tweet-face
+    '((t (:background "green"))) "Face used to highlight tweet under point")
+(defface tweet-text-face
+    '((t (:width extra-condensed :weight ultra-light))) "Face used to display tweet text")
+(defface tweet-header-face
+    '((t (:weight bold))) "Face used to display tweet header")
+(defface tweet-link-face
+    '((t (:box (:line-width 2 :style released-button)))) "Face used to display a link in the footer of a tweet")
 
 ;; Keymaps
 (defvar status-edit-mode-map
@@ -99,6 +115,10 @@
   (mapc #'(lambda (directory) (create-dir-noexist directory))
 	'("~/.twitel" "~/.twitel/dp-cache" "~/.twitel/tweet-cache"))
   (twitter-authenticate)
+  (refresh-timeline))
+
+(defun refresh-timeline ()
+  (interactive)
   (twitter-friends-timeline))
 
 (defun update-status-minibuffer ()
@@ -166,8 +186,8 @@
 
 (define-derived-mode timeline-view-mode view-mode "Timeline view"
   "Major mode for viewing Twitter timelines"
-  (setf left-margin-width 6
-	fringes-outside-margins t))
+  (if *dp-fetch-p* (setf left-margin-width 6))
+  (setf fringes-outside-margins t))
 
 (define-derived-mode zbuffer-mode text-mode "Status edit"
   "Major mode for updating your Twitter status."
@@ -356,16 +376,17 @@ message."
   (pop-to-buffer "*Twitter Status*")
   (twitter-status-edit-mode))
 
-(defun fill-line (&rest text)
+(defun fill-line (apply-face &rest text)
   "Carefully fills region with text tracking point"
   (fill-region (prog1
 		   (point)
-		 (insert (apply 'concat text)))
+		 (insert (propertize (apply 'concat text)
+				     'face apply-face)))
 	       (progn (backward-char) (point))))
 
 (defun insert-tweet (tweet)
   "Inserts a tweet into the current buffer"
-  (goto-char (point-min))  
+  (goto-char (point-min))
   (let ((tweet-begin (point))
 	(tweet-id (gethash 'tweet-id tweet))
 	(text (gethash 'text tweet))
@@ -376,28 +397,32 @@ message."
 	(uri-list (gethash 'uri-list tweet))
 	(screen-name-list (gethash 'screen-name-list tweet))
 	(fav-p (gethash 'fav-p tweet)))
-    (insert-image (build-image-descriptor dp-url) nil 'left-margin)
-    (fill-line screen-name " | " source " | " (format-twitter-time timestamp))
+    (when *dp-fetch-p* (insert-image (build-image-descriptor dp-url) nil 'left-margin))
+    (fill-line 'tweet-header-face screen-name " | " source " | " (format-twitter-time timestamp))
     (insert "\n")
-    (fill-line text)
+    (fill-line 'tweet-text-face text)
     (insert "\n")
-    (when (and screen-name uri-list)
-      (fill-line
-       (mapconcat #'(lambda (uri)
-		      (make-uri-button uri)) uri-list " | ")
-       (if screen-name-list " | ")
-       (mapconcat #'(lambda (screen-name)
-		      (make-screen-name-button screen-name)) screen-name-list " | "))
+    (when (or screen-name-list uri-list)
+      (mapc #'(lambda (uri)
+		(insert (propertize
+			 (make-uri-button uri)
+			 'face 'tweet-link-face) " | "))
+	    uri-list)
+      (mapc #'(lambda (screen-name)
+		(insert (propertize
+			 (make-screen-name-button screen-name)
+			 'face 'tweet-link-face) " | "))
+	    screen-name-list)
+      (backward-delete-char 3)  ;; Hack to remove the last ` | '
       (insert "\n"))
     (insert "\n")
   
     ;; Tweet inserted. Now add text properties to the tweet
     (add-text-properties tweet-begin (point)
-			 `(tweet-id
-			   ,tweet-id
-			   tweet-author-screen-name
-			   ,screen-name)))
-  (fetch-beautify-dp))
+			 (list 'tweet-id
+			       tweet-id
+			       'tweet-author-screen-name
+			       screen-name))))
 
 (defun render-timeline (tweet-list buf-name)
   "Renders a list of tweets"
@@ -409,7 +434,8 @@ message."
 	(goto-char (point-min))
 	(mapcar
 	 #'(lambda (tweet-hashtable) (insert-tweet tweet-hashtable))
-	 tweet-list)))))
+	 tweet-list)
+	(if *dp-fetch-p* (fetch-beautiful-dp))))))
 
 (defun guess-image-type-extn (file-name)
   (cond
@@ -430,16 +456,30 @@ message."
   "Fetch the display pics in *dp-fetch-queue*: An alist of (filename . uri)"
   (mapc
    #'(lambda (cons-pair)
-       (start-process-shell-command
-	"dp-fetcher"
-	nil
-	(format
-	 (concat "wget -O - %s -q "
-		 "| convert - -resize 48 - "
-		 "| composite -compose Dst_In "
-		 "-gravity center -matte round_mask_48.png - %s")
-	 (cdr cons-pair)
-	 (concat *dp-cache-dir* "/" (car cons-pair)))))
+       (if *round-corners-p*
+	   (start-process-shell-command
+	    "dp-fetcher"
+	    nil
+	    (format
+	     (concat "%s -O - %s -q "
+		     "| %s - -resize %d - "
+		     "| %s -compose Dst_In "
+		     "-gravity center -matte %s - %s")
+	     *wget-executable-path*
+	     (cdr cons-pair)
+	     *convert-executable-path*
+	     *dp-resize-size*
+	     *composite-executable-path*
+	     *image-mask-path*
+	     (concat *dp-cache-dir* "/" (car cons-pair))))
+	   (start-process-shell-command
+	    "dp-fetcher"
+	    nil
+	    (format
+	     (concat "%s -O %s %s -q ")
+	     *wget-executable-path*
+	     (concat *dp-cache-dir* "/" (car cons-pair))
+	     (cdr cons-pair)))))
    *dp-fetch-queue*)
   (setq *dp-fetch-queue* '()))
 
@@ -473,3 +513,5 @@ TIME should be a high/low pair as returned by encode-time."
                (format-time-string "Yesterday at %H:%M" time))
               (t
                (format-time-string "Last %A at %H:%M" time)))))))
+
+

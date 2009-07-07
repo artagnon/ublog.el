@@ -66,8 +66,17 @@ Development tracker
 * TODO Dump new ideas into twsuperapi.el
 
 Bugs and enhancement tasks
-* TODO forward-tweet and backward-tweet don't work: Propertize properly
-* TODO Stylize the first line of tweet entity
+* DONE forward-tweet and backward-tweet don't work: Propertize properly
+  CLOSED: [2009-07-08 Wed 00:55]
+** DONE tweet-id isn't getting set for some reason
+   CLOSED: [2009-07-08 Wed 00:55]
+* DONE Stylize the tweet entity
+  CLOSED: [2009-07-08 Wed 02:25]
+* DONE Fix tweet footer
+  CLOSED: [2009-07-08 Wed 02:25]
 * TODO Reduce column size to get Tweetdeck panes
 * TODO Synchronous hang- Is it the DP fetcher?
 * TODO Inconsistent timestamp display
+* TODO zbuffer-related functions
+* TODO Implement since
+* TODO Handle ^M characters in text
