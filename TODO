@@ -4,13 +4,11 @@
 * Structure and file layout
 ** twapi.el for standard Twitter API interfaces: Need to complete
 ** twsuperapi.el for extra API interfaces. New ideas go here. Document well!
-** twui.el is the code for all user interfaces. All display-related functions and keybindings go here.
-** rewrite.el that binds together everything. Will be renamed later
-** twhelper.el for all commonly used misc macros. Will probably get rid of this later
+** twui.el is the binder and UI. All display-related functions and keybindings go here.
+** twhelper.el is a dump of some misc functions. Remove later.
 ** oauth.el lifted from psanford's repo and heavily edited. Used for all HTTP communicated.
 ** hmc-sha1.el lifted from Derek Upham's repo. Unmodified
 ** twparse.el contains code to map json response to user variables. Needs lots of work
-** twminors.el contains ideas for minor modes. Very long term goal - ?
 
 * DONE Unit test all the init functions and get OAuth authentication working [5/5]
   CLOSED: [2009-06-27 Sat 03:08]
@@ -52,15 +50,16 @@
      - [ ] Cache framework for tweet and DP caching
        - [ ] Tweet caching
        - [ ] DP caching
-* IN-PROGRESS Complete UI [0/6]
+* IN-PROGRESS Complete UI [2/6]
   - [-] Rendering tweets [3/4]
     - [X] Basic rendering
     - [X] Enhance rendering with buttons
     - [ ] Hook rendering to cache
     - [X] DP rendering
-  - [ ] Interactive functions and major mode for interacting with rendered tweets
+  - [X] Interactive functions and major mode for interacting with rendered tweets
   - [ ] Tweetdeck panes
-  - [ ] Keybindings
+  - [X] Keybindings
   - [ ] Auto-fetch interval
-  - [ ] Notifications
+  - [ ] Notifications: WONTFIX
+  - [ ] Binding glue
 * TODO Dump new ideas into twsuperapi.el
