@@ -2,13 +2,13 @@
 #+TODO: TODO IN-PROGRESS STUCK DEFERRED | DONE INVALID ABANDONED
 
 * Structure and file layout
-** twapi.el for standard Twitter API interfaces: Need to complete
-** twsuperapi.el for extra API interfaces. New ideas go here. Document well!
-** twui.el is the binder and UI. All display-related functions and keybindings go here.
+** twapi.el for standard Twitter API interfaces.
+** twsuperapi.el for extra API interfaces. New ideas go here.
+** ublog.el is the binder and UI. All display-related functions and keybindings go here.
 ** twhelper.el is a dump of some misc functions. Remove later.
-** oauth.el lifted from psanford's repo and heavily edited. Used for all HTTP communicated.
+** oauth.el lifted from psanford's repo and edited. Used for all HTTP communicated.
 ** hmc-sha1.el lifted from Derek Upham's repo. Unmodified
-** twparse.el contains code to map json response to user variables. Needs lots of work
+** twparse.el contains code to map json response to user variables.
 
 Development tracker
 * DONE Unit test all the init functions and get OAuth authentication working [5/5]
@@ -77,7 +77,8 @@ Bugs and enhancement tasks
 * TODO Reduce column size to get Tweetdeck panes
 * TODO Synchronous hang- Is it the DP fetcher?
 * TODO Inconsistent timestamp display
-* TODO zbuffer-related functions
+* DONE zbuffer-related functions
+  CLOSED: [2009-07-08 Wed 13:31]
 * TODO Implement since
 * TODO Handle ^M characters in text
 * TODO Namespace issue: Prefix function names with `ublog-'

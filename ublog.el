@@ -1,4 +1,4 @@
-;;;; twui.el -- User interface library
+;;;; ublog.el -- The binder containing UI
 ;;;; This file is part of µblog.el (http://github.com/artagnon/ublog.el)
 
 ;; Copyright (C) 2009 Ramkumar R <artagnon@gmail.com>
@@ -61,6 +61,12 @@
 	(cons 'search "*search*")
 	(cons 'mentions "*mentions*")))
 (defvar *max-status-len* 140)
+(defvar zbuffer-remaining-length ""
+  "Characters remaining in a Twitter status update")
+(put 'zbuffer-remaining-length 'risky-local-variable t)
+(defvar zbuffer-overlay nil
+  "Overlay used to highlight overlong status messages")
+
 
 ;; TODO: `artagnon' cannot be hardcoded here!
 (defvar *dp-cache-dir* "/home/artagnon/.ublog/dp-cache")
@@ -87,7 +93,7 @@
     '((t (:box (:line-width 2 :style released-button)))) "Face used to display a link in the footer of a tweet")
 
 ;; Keymaps
-(defvar status-edit-mode-map
+(defvar zbuffer-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\C-c\C-c" 'update-status-buffer-string)
     (define-key map "\C-c\C-k" 'kill-status-buffer)
@@ -100,8 +106,8 @@
     (define-key map "\C-p" 'backward-tweet)
     (define-key map "\C-f" 'forward-button)
     (define-key map "\C-b" 'backward-button)
-    (define-key map "\C-cr" 'reply-to-this-tweet)
-    (define-key map "\C-c\C-r" 'retweet-this-tweet)
+    (define-key map "\C-c\C-r" 'reply-to-this-tweet)
+    (define-key map "\C-c\C-t" 'retweet-this-tweet)
     map)
   "Keymap for `timeline-view-mode'")
 
@@ -193,9 +199,9 @@
   "Major mode for updating your Twitter status."
   ;; Schedule to update the character count after altering the buffer
   (make-local-variable 'after-change-functions)
-  (add-hook 'after-change-functions 'twitter-status-edit-after-change)
+  (add-hook 'after-change-functions #'(lambda (begin old old-size) (zbuffer-update-length)))
   ;; Add the remaining character count to the mode line
-  (make-local-variable 'twitter-status-edit-remaining-length)
+  (make-local-variable 'zbuffer-remaining-length)
   ;; Copy the mode line format list so we can safely edit it without
   ;; affecting other buffers
   (setq mode-line-format (copy-sequence mode-line-format))
@@ -204,13 +210,13 @@
     (catch 'found
       (while n
         (when (eq 'mode-line-modes (car n))
-          (setcdr n (cons 'twitter-status-edit-remaining-length
+          (setcdr n (cons 'zbuffer-remaining-length
                           (cdr n)))
           (throw 'found nil))
         (setq n (cdr n)))))
   ;; Make a buffer-local reference to the overlay for overlong
   ;; messages
-  (make-local-variable 'twitter-status-edit-overlay)
+  (make-local-variable 'zbuffer-overlay)
   ;; A buffer local variable for the reply id. This is filled in when
   ;; the reply button is pressed
   (make-local-variable 'twitter-reply-status-id)
@@ -336,7 +342,7 @@
 		   'follow-link link)
     link))
 
-(defun twitter-status-edit-update-length ()
+(defun zbuffer-update-length ()
   "Updates the character count in Twitter status buffers.
 This should be run after the text in the buffer is changed. Any
 characters after the maximum status update length are
@@ -345,7 +351,7 @@ character count on the mode line is updated."
   ;; Update the remaining characters in the mode line
   (let ((remaining (- *max-status-len*
                       (buffer-size))))
-    (setq twitter-status-edit-remaining-length
+    (setq zbuffer-remaining-length
           (concat " "
                   (if (>= remaining 0)
                       (number-to-string remaining)
@@ -355,16 +361,16 @@ character count on the mode line is updated."
   (force-mode-line-update)
   ;; Highlight the characters in the buffer that are over the limit
   (if (> (buffer-size) *max-status-len*)
-      (let ((start (+ (point-min) *max-status-length*)))
-        (if (null twitter-status-edit-overlay)
-            (overlay-put (setq twitter-status-edit-overlay
+      (let ((start (+ (point-min) *max-status-len*)))
+        (if (null zbuffer-overlay)
+            (overlay-put (setq zbuffer-overlay
                                (make-overlay start (point-max)))
                          'face 'exceed-warn-face)
-          (move-overlay twitter-status-edit-overlay
+          (move-overlay zbuffer-overlay
                         start (point-max))))
     ;; Buffer is not too long so just hide the overlay
-    (when twitter-status-edit-overlay
-      (delete-overlay twitter-status-edit-overlay))))
+    (when zbuffer-overlay
+      (delete-overlay zbuffer-overlay))))
 
 (defun twitter-status-edit ()
   "Edit your twitter status in a new buffer.
