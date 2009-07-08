@@ -124,7 +124,7 @@
 (defun update-status-minibuffer ()
   "Update status from the minibuffer"
   (interactive)
-  (let status (read-string "Status: ")
+  (let ((status (read-string "Status: ")))
        (twitter-update-status (url-hexify-string status))))
 
 (defun zbuffer-popout ()
