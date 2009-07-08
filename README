@@ -1,7 +1,24 @@
-Twitel: Ultimately extensible Twitter client written in Emacs Lisp
+-*- mode:Org -*-
 
-Some features:
-- OAuth authentication
-- Configurable keybindings in a dedicated major mode
-- Tweetdeck-like pane functionality provided by multiple vertical frames
-- Gravity-like interface
+µblog.el: Ultimately extensible microblogging client written in Emacs Lisp
+Twitter implemented. Laconica support expected in future
+
+== Features ==
+* Existing features:
+** OAuth authentication
+** DP fetch + render (with rounded corners)
+** Modular architecture: 3 stages- fetching, parsing, and rending
+** Configurable keybindings in a dedicated major mode
+** Gravity-like interface
+** Dedicated zbuffer-mode for editing 140-character status updates
+* Planned features:
+** Laconica support
+** Tweetdeck-like pane functionality provided by multiple vertical frames 
+
+== Usage ==
+* git clone git://github.com/artagnon/ublog.el.git
+* Put the ublog.el directory in your Emacs loadpath
+* Put (require 'ublog) in your Emacs config file
+* M-x twitter-init and switch to the *timeline* buffer to see the updates
+* Read the list of keybindings in the ublog.el file
+

@@ -1,5 +1,5 @@
 ;;;; twui.el -- User interface library
-;;;; This file is part of Twitel (http://github.com/artagnon/twitel)
+;;;; This file is part of µblog.el (http://github.com/artagnon/ublog.el)
 
 ;; Copyright (C) 2009 Ramkumar R <artagnon@gmail.com>
 
@@ -44,16 +44,16 @@
 (defvar *twitter-proxy-port* nil)
 
 ;; Twitter OAuth URLs
-(defvar *twitel-request-url* "http://twitter.com/oauth/request_token")
-(defvar *twitel-access-url* "http://twitter.com/oauth/access_token")
-(defvar *twitel-user-authorize* "http://twitter.com/oauth/authorize")
+(defvar *ublog-request-url* "http://twitter.com/oauth/request_token")
+(defvar *ublog-access-url* "http://twitter.com/oauth/access_token")
+(defvar *ublog-user-authorize* "http://twitter.com/oauth/authorize")
 
 ;; Twitter OAuth keys
-(defvar *twitel-consumer-key* "K9vrCLHpp5vuln72ROufzQ")
-(defvar *twitel-consumer-secret* "sUTgzZRgm0GCHQNYixFx3TS2D94TwaQv90gIXhTQNcE")
+(defvar *ublog-consumer-key* "K9vrCLHpp5vuln72ROufzQ")
+(defvar *ublog-consumer-secret* "sUTgzZRgm0GCHQNYixFx3TS2D94TwaQv90gIXhTQNcE")
 
-(defvar *twitel-access-token* nil)
-(defvar *twitel-token-file* "~/.twitel/token")
+(defvar *ublog-access-token* nil)
+(defvar *ublog-token-file* "~/.ublog/token")
 
 (defvar *buffer-names-assoc*
   (list (cons 'own "*timeline*")
@@ -63,7 +63,7 @@
 (defvar *max-status-len* 140)
 
 ;; TODO: `artagnon' cannot be hardcoded here!
-(defvar *dp-cache-dir* "/home/artagnon/.twitel/dp-cache")
+(defvar *dp-cache-dir* "/home/artagnon/.ublog/dp-cache")
 (defvar *dp-fetch-p* nil)
 (defvar *dp-fetch-queue* '())
 (defvar *frame-config-view* nil)
@@ -113,7 +113,7 @@
   "Check if the configuration directory exists and authenticate"
   (interactive)
   (mapc #'(lambda (directory) (create-dir-noexist directory))
-	'("~/.twitel" "~/.twitel/dp-cache" "~/.twitel/tweet-cache"))
+	'("~/.ublog" "~/.ublog/dp-cache" "~/.ublog/tweet-cache"))
   (twitter-authenticate)
   (refresh-timeline))
 
@@ -250,27 +250,27 @@
 
 (defun twitter-authenticate ()
   "Get authentication token"
-  (if (file-exists-p *twitel-token-file*)
+  (if (file-exists-p *ublog-token-file*)
       ;; Enter this only after authenticating the first time
       (save-excursion
 	;; Read file to get `acess token'
-	(find-file *twitel-token-file*)
+	(find-file *ublog-token-file*)
 	(let ((str (buffer-substring (point-min) (point-max))))
 	  (if (string-match "\\([^:]*\\):\\(.*\\)"
 			    (buffer-substring (point-min) (point-max)))
-	      (setq *twitel-access-token*
-		    ;; *twitel-access-token* is set
+	      (setq *ublog-access-token*
+		    ;; *ublog-access-token* is set
 		    (make-oauth-access-token
-		     :consumer-key *twitel-consumer-key*
-		     :consumer-secret *twitel-consumer-secret*
+		     :consumer-key *ublog-consumer-key*
+		     :consumer-secret *ublog-consumer-secret*
 		     :auth-t (make-oauth-t
 			      :token (match-string 1 str)
 			      :token-secret (match-string 2 str))))))
 	(save-buffer)
 	(kill-this-buffer))
-      (unless *twitel-access-token*
-	;; Unless *twitel-access-token* was set without entering the if branch
-	;; ie. twitel-authenticate called unnecessarily. Just return *twitel-access-token*
+      (unless *ublog-access-token*
+	;; Unless *ublog-access-token* was set without entering the if branch
+	;; ie. ublog-authenticate called unnecessarily. Just return *ublog-access-token*
         (let ((callback
                (lambda ()
 		 ;; This function will be invoked later, somewhere within oauth-twitter-app
@@ -279,25 +279,25 @@
                                         "Please enter the provided code: ")))
                    (setq access-url
                          (concat access-url "?oauth_verifier=" callback-token))))))
-          (setq *twitel-access-token*
-                (oauth-authorize-app *twitel-consumer-key*
-                                     *twitel-consumer-secret*
-                                     *twitel-request-url*
-                                     *twitel-access-url*
-                                     *twitel-user-authorize*
+          (setq *ublog-access-token*
+                (oauth-authorize-app *ublog-consumer-key*
+                                     *ublog-consumer-secret*
+                                     *ublog-request-url*
+                                     *ublog-access-url*
+                                     *ublog-user-authorize*
 				     callback)))
 
-	;; We just got *twitel-access-token*. Save it to a file for all future authentication.
+	;; We just got *ublog-access-token*. Save it to a file for all future authentication.
         (save-excursion
-          (find-file *twitel-token-file*)
+          (find-file *ublog-token-file*)
           (end-of-buffer)
-          (let ((token (oauth-access-token-auth-t *twitel-access-token*)))
+          (let ((token (oauth-access-token-auth-t *ublog-access-token*)))
             (insert (format "%s:%s\n"
                             (oauth-t-token token)
                             (oauth-t-token-secret token))))
           (save-buffer)
           (kill-this-buffer)))
-      *twitel-access-token*))
+      *ublog-access-token*))
 
 (defun twitter-url (&optional relative search-flag)
   "Generate a Twitter URL with an optional relative"
@@ -307,7 +307,7 @@
 
 (defun twitter-request (url http-method &optional parameters)
   "Use HTTP METHOD to request URL with some optional parameters"
-  (oauth-url-retrieve *twitel-access-token*
+  (oauth-url-retrieve *ublog-access-token*
 		      (concat url
 			      "."
 			      *twitter-response-format*

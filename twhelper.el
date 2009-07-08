@@ -1,5 +1,5 @@
 ;;;; twhelper.el -- Helper functions for Twitel
-;;;; This file is part of Twitel (http://github.com/artagnon/twitel)
+;;;; This file is part of µblog.el (http://github.com/artagnon/ublog.el)
 
 ;; Copyright (C) 2009 Ramkumar R <artagnon@gmail.com>
 

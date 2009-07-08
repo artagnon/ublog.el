@@ -1,4 +1,0 @@
-* Fixes
-** Posting to Twitter
-* New features
-** OAuth

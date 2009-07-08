@@ -80,3 +80,4 @@ Bugs and enhancement tasks
 * TODO zbuffer-related functions
 * TODO Implement since
 * TODO Handle ^M characters in text
+* TODO Namespace issue: Prefix function names with `ublog-'
