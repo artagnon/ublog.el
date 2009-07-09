@@ -101,13 +101,17 @@
   "Keymap for `status-edit-mode'")
 
 (defvar timeline-view-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "\C-n" 'forward-tweet)
-    (define-key map "\C-p" 'backward-tweet)
-    (define-key map "\C-f" 'forward-button)
-    (define-key map "\C-b" 'backward-button)
-    (define-key map "\C-c\C-r" 'reply-to-this-tweet)
-    (define-key map "\C-c\C-t" 'retweet-this-tweet)
+  (let ((map (make-keymap)))
+    ;; Suppress all normal keybindings so that we can have easy
+    ;; Magit-like keybindings
+    (suppress-keymap map t)
+    (define-key map (kbd "C-n") 'forward-tweet)
+    (define-key map (kbd "C-p") 'backward-tweet)
+    (define-key map (kbd "C-f") 'forward-button)
+    (define-key map (kbd "C-b") 'backward-button)
+    (define-key map (kbd "u") 'zbuffer-popout)
+    (define-key map (kbd "r") 'reply-to-this-tweet)
+    (define-key map (kbd "t") 'retweet-this-tweet)
     map)
   "Keymap for `timeline-view-mode'")
 
@@ -190,9 +194,24 @@
 ;; Modes
 ;; =====
 
-(define-derived-mode timeline-view-mode view-mode "Timeline view"
-  "Major mode for viewing Twitter timelines"
+(put 'timeline-view-mode 'mode-class 'special)
+(defun timeline-view-mode ()
+  "Major mode for viewing Timelines"
+  (kill-all-local-variables)
+  (buffer-disable-undo)
+  (setq buffer-read-only t)
+  (setq major-mode 'timeline-view-mode
+	mode-name "Timeline-View"
+	mode-line-process "")
+  (use-local-map timeline-view-mode-map)
+  
+  ;; Tweetdeck-like ypanes
+  (make-local-variable 'number-of-ypanes)  ;; Number of ypanes
+  (make-local-variable 'ypanes-stack)      ;; For storing window objects of the panes
+  (setq number-of-ypanes 2)
+  
   (if *dp-fetch-p* (setf left-margin-width 6))
+  (setf fill-column (/ (window-width) *number-of-ypanes*))
   (setf fringes-outside-margins t))
 
 (define-derived-mode zbuffer-mode text-mode "Status edit"
