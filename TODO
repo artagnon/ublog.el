@@ -1,6 +1,6 @@
 -*- mode: Org -*-
 For developers! Tracks bugs and enhancement tasks
-#+TODO: NEW IN-PROGRESS | DONE INVALID WONTFIX
+#+TODO: NEW IN-PROGRESS STUCK | DONE INVALID WONTFIX
 
 Bugs and enhancement tasks
 * DONE forward-tweet and backward-tweet don't work: Propertize properly
@@ -11,16 +11,23 @@ Bugs and enhancement tasks
   CLOSED: [2009-07-08 Wed 02:25]
 * DONE Fix tweet footer
   CLOSED: [2009-07-08 Wed 02:25]
-* NEW Reduce column size to get Tweetdeck panes
+* DONE Reduce column size to get Tweetdeck panes
+  CLOSED: [2009-07-09 Thu 20:13]
+  - CLOSING NOTE [2009-07-09 Thu 20:14] \\
+    Panes are coming up. Still TODO: Write a wrapper to dump/ restore ybuffer frame configuration
 * NEW Synchronous hang- Is it the DP fetcher?
 * NEW Inconsistent timestamp display
 * DONE zbuffer-related functions
   CLOSED: [2009-07-08 Wed 13:31]
 * NEW Implement since
 * NEW Handle ^M characters in text
-* NEW Namespace issue: Prefix function names with `ublog-'
+* STUCK Namespace issue: Prefix function names with `ublog-'
+** Find out a way to do it without too much pain
 * NEW hashtag-list in tweet footer
 * NEW Conversation follower using recursive in_reply_to parser
 * NEW Buffer names corresponding to different timelines
 * NEW Proxy configuration
-* NEW Workflow refactor: Retrieve hashtables, not final outputs!
+* STUCK Workflow refactor: Retrieve hashtables, not final outputs!
+** Ask on IRC
+* DONE With ybuffer, zbuffer uses one of the frames created by ybuffer
+  CLOSED: [2009-07-09 Thu 20:28]

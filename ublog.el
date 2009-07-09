@@ -144,7 +144,10 @@
   "Pops out a special zbuffer for editing tweets"
   (setq twitter-frame-configuration (current-frame-configuration))
   (interactive)
-  (pop-to-buffer "*zbuffer*")
+  (select-window
+   (split-window-vertically
+    (- (+ 3 (/ *max-status-len* (window-width))))))
+  (switch-to-buffer "*zbuffer*")
   (zbuffer-mode))
 
 (defun update-status-buffer-string ()
@@ -212,7 +215,7 @@
   (setq number-of-ypanes 2)
   
   (if *dp-fetch-p* (setf left-margin-width 6))
-  (setf fill-column (/ (window-width) *number-of-ypanes*))
+  (setf fill-column (/ (window-width) number-of-ypanes))
   (setf fringes-outside-margins t))
 
 (define-derived-mode zbuffer-mode text-mode "zBuffer"
