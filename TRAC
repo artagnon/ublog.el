@@ -1,0 +1,67 @@
+-*- mode: Org -*-
+For developers! Tracks development progress
+#+TODO: TODO IN-PROGRESS STUCK DEFERRED | DONE INVALID ABANDONED
+
+* Structure and file layout
+** twapi.el for standard Twitter API interfaces.
+** twsuperapi.el for extra API interfaces. New ideas go here.
+** ublog.el is the binder and UI. All display-related functions and keybindings go here.
+** twhelper.el is a dump of some misc functions. Remove later.
+** oauth.el lifted from psanford's repo and edited. Used for all HTTP communicated.
+** hmc-sha1.el lifted from Derek Upham's repo. Unmodified
+** twparse.el contains code to map json response to user variables.
+
+Development tracker
+* DONE Unit test all the init functions and get OAuth authentication working [5/5]
+  CLOSED: [2009-06-27 Sat 03:08]
+  - CLOSING NOTE [2009-06-27 Sat 03:09] \\
+    OAuth authentication works perfectly. Conducted a series of tests to handle various testcase branches.
+  - [X] twitel-init :db5bca8
+  - [X] twitel-authenticate fails in db5bca8 :7899a5c [2/2]
+    - [X] twitter-authorize-app fails in oauth.el:176
+    - [X] oauth-fetch-token fails in oauth.el:309 with Error: Search failed
+  - [X] twitter-request :9626b49 :fb53c90
+  - [X] twitter-url :9626b49 :4c55ca2
+* ABANDONED Clean up and streamline the HTTP GET and POST interfaces in twhttp.el
+  CLOSED: [2009-06-25 Thu 23:46]
+  - CLOSING NOTE [2009-06-25 Thu 23:47] \\
+    oauth.el has some HTTP interfaces. Working on them instead.
+** DONE Rip out similar code from other files such as rewrite.el
+   CLOSED: [2009-06-27 Sat 03:10]
+   - CLOSING NOTE [2009-06-27 Sat 03:11] \\
+     Ripped out in :1120a52
+* IN-PROGRESS Finish off twapi.el for the standard Twitter API interfaces
+** IN-PROGRESS Unit test interfaces in twapi.el
+** DONE Passing optional parameters: Figure out a way!
+   CLOSED: [2009-07-02 Thu 16:49]
+   - CLOSING NOTE [2009-07-02 Thu 16:49] \\
+     Done with a simple (or <nil parameter> "")
+* DEFERRED Parse response and hook to callback
+** DONE Create the callback function
+   CLOSED: [2009-06-27 Sat 03:12]
+   - CLOSING NOTE [2009-06-27 Sat 03:12] \\
+     Finished in :1120a52
+** DEFERRED Parsing [1/2]
+   - [X] Refactor response-hash-table for suitable display: Unit testing [3/3]
+     - [X] crop-hashtable
+     - [X] sanitize-hashtable
+     - [X] enrich-hashtable
+   - [ ] Database for caching: bbdb? [0/2]
+     - [ ] Database design
+     - [ ] ORM: Data structure <-> Database bridge
+     - [ ] Cache framework for tweet and DP caching
+       - [ ] Tweet caching
+       - [ ] DP caching
+* IN-PROGRESS Complete UI [3/7]
+  - [-] Rendering tweets [3/4]
+    - [X] Basic rendering
+    - [X] Enhance rendering with buttons
+    - [ ] Hook rendering to cache
+    - [X] DP rendering
+  - [X] Interactive functions and major mode for interacting with rendered tweets
+  - [ ] Tweetdeck panes
+  - [X] Keybindings
+  - [ ] Auto-fetch interval
+  - [ ] Notifications: WONTFIX
+  - [X] Binding glue
+* TODO Dump new ideas into twsuperapi.el
