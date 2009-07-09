@@ -98,7 +98,7 @@
     (define-key map "\C-c\C-c" 'update-status-buffer-string)
     (define-key map "\C-c\C-k" 'kill-status-buffer)
     map)
-  "Keymap for `status-edit-mode'")
+  "Keymap for `zbuffer-mode'")
 
 (defvar timeline-view-mode-map
   (let ((map (make-keymap)))
@@ -169,15 +169,13 @@
 	(status-screen-name (get-text-property pos 'tweet-author-screen-name)))
     (when (null status-screen-name)
       (error "Missing screen name in status"))
-    (when (null status-id)
-      (error "Missing status id"))
     (zbuffer-popout)
     (insert "RT @" status-screen-name ": ")))
 
 (defun kill-status-buffer ()
-  "Kill the *Twitter Status* buffer and restore the previous frame configuration."
+  "Kill the *zbuffer* buffer and restore the previous frame configuration."
   (interactive)
-  (kill-buffer "*Twitter Status*")
+  (kill-buffer "*zbuffer*")
   (set-frame-configuration twitter-frame-configuration))
 
 (defun forward-tweet (pos)
@@ -214,7 +212,7 @@
   (setf fill-column (/ (window-width) *number-of-ypanes*))
   (setf fringes-outside-margins t))
 
-(define-derived-mode zbuffer-mode text-mode "Status edit"
+(define-derived-mode zbuffer-mode text-mode "zBuffer"
   "Major mode for updating your Twitter status."
   ;; Schedule to update the character count after altering the buffer
   (make-local-variable 'after-change-functions)
@@ -241,7 +239,7 @@
   (make-local-variable 'twitter-reply-status-id)
   (setq twitter-reply-status-id nil)
   ;; Update the mode line immediatly
-  (twitter-status-edit-update-length))
+  (zbuffer-update-length))
 
 ;; =========
 ;; Functions
@@ -262,10 +260,9 @@
 		      (message status)))
 	(save-excursion
 	  (let ((parsed-object (json-read-from-string (cdr http-info))))
+	    ;; parsed-object is either a hashtable or a vector of hashtables
 	    (render-timeline
-	     (master-response-parser
-	      parsed-object)
-	     'own)))
+	     (master-response-parser parsed-object) 'own)))
 	(kill-buffer))))
 
 (defun create-dir-noexist (directory)
@@ -538,5 +535,3 @@ TIME should be a high/low pair as returned by encode-time."
                (format-time-string "Yesterday at %H:%M" time))
               (t
                (format-time-string "Last %A at %H:%M" time)))))))
-
-
