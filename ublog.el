@@ -61,12 +61,15 @@
 	(cons 'search "*search*")
 	(cons 'mentions "*mentions*")))
 (defvar *max-status-len* 140)
+
+;; For storing local variables
 (defvar zbuffer-remaining-length ""
   "Characters remaining in a Twitter status update")
 (put 'zbuffer-remaining-length 'risky-local-variable t)
 (defvar zbuffer-overlay nil
   "Overlay used to highlight overlong status messages")
-
+(defvar number-of-ypanes)  ;; Number of ypanes
+(defvar ypanes-stack)    ;; For storing window objects of the panes
 
 ;; TODO: `artagnon' cannot be hardcoded here!
 (defvar *dp-cache-dir* "/home/artagnon/.ublog/dp-cache")
@@ -450,14 +453,22 @@ message."
   "Renders a list of tweets"
   (let ((timeline-buffer (get-buffer-create (cdr (assoc buf-name *buffer-names-assoc*)))))
     (with-current-buffer timeline-buffer
-      (kill-all-local-variables)
       (timeline-view-mode)
       (let ((inhibit-read-only t))
 	(goto-char (point-min))
 	(mapcar
 	 #'(lambda (tweet-hashtable) (insert-tweet tweet-hashtable))
 	 tweet-list)
-	(if *dp-fetch-p* (fetch-beautiful-dp))))))
+	(if *dp-fetch-p* (fetch-beautiful-dp)))
+
+      ;; Printing done; now switch to buffer and render ypanes
+      (switch-to-buffer timeline-buffer)
+  
+      ;; The ypanes code
+      (push (get-buffer-window) ypanes-stack)
+      (when (> number-of-ypanes 1)
+	;; Split the window
+	(push (split-window-horizontally fill-column) ypanes-stack)))))
 
 (defun guess-image-type-extn (file-name)
   (cond
