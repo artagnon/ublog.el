@@ -57,10 +57,15 @@
   (mapcar #'(lambda (cons-pair) (car cons-pair)) list))
 
 (defun master-response-parser (response-object)
-  "Loops through a collection of hashtables and collects another list of
-hashtables after applying hashtable-parser to each object"
-  (loop for hashtable across response-object
-     collecting (hashtable-parser hashtable)))
+  "Handles the output of `json-read-from-string'"
+  (if (vectorp response-object)
+  ;; Case: response-object is a vector of hashtables
+  ;; Loops through a vector of hashtables and collects a list of
+  ;; hashtables after applying hashtable-parser to each object
+      (loop for hashtable across response-object
+	 collecting (hashtable-parser hashtable))
+      ;; Case: response-object is a hashtable
+      (hashtable-parser response-object)))
 
 (defun hashtable-parser (response-hashtable)
   "Crops, sanitizes, and enriches hashtable"
