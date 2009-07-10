@@ -85,6 +85,8 @@
     '((t (:width extra-condensed :weight ultra-light))) "Face used to display tweet text")
 (defface tweet-header-face
     '((t (:weight bold))) "Face used to display tweet header")
+(defface not-following-face
+    '((t (:background "#222222"))) "Gray background to indicate not following")
 (defface tweet-link-face
     '((t (:box (:line-width 2 :style released-button)))) "Face used to display a link in the footer of a tweet")
 
@@ -422,7 +424,8 @@ character count on the mode line is updated."
 	(dp-url (gethash 'dp-url tweet))
 	(uri-list (gethash 'uri-list tweet))
 	(screen-name-list (gethash 'screen-name-list tweet))
-	(fav-p (gethash 'fav-p tweet)))
+	(fav-p (gethash 'fav-p tweet))
+	(following-p (gethash 'following-p tweet)))
     (when *dp-fetch-p* (insert-image (build-image-descriptor dp-url) nil 'left-margin))
     (fill-line 'tweet-header-face screen-name " | " source " | " (format-twitter-time timestamp))
     (insert "\n")
@@ -454,7 +457,9 @@ character count on the mode line is updated."
 			 (list 'tweet-id
 			       tweet-id
 			       'tweet-author-screen-name
-			       screen-name))))
+			       screen-name
+			       'face
+			       (if following-p nil 'not-following-face)))))
 
 (defun render-timeline (tweet-list buf-name)
   "Renders a list of tweets in the current-buffer"
