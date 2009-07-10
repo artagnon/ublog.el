@@ -454,14 +454,19 @@ message."
 
 (defun render-timeline (tweet-list buf-name)
   "Renders a list of tweets"
-  (let ((timeline-buffer (get-buffer-create (cdr (assoc buf-name *buffer-names-assoc*)))))
+  (let ((timeline-buffer (get-buffer-create (cdr (assoc buf-name *buffer-names-assoc*))))
+	;; Sort the tweet-list reverse-chronologically first
+	(sorted-tweet-list
+	 (sort tweet-list
+	       #'(lambda (tweet-1 tweet-2)
+		   (time-less-p (gethash 'timestamp tweet-1) (gethash 'timestamp tweet-2))))))
     (with-current-buffer timeline-buffer
       (timeline-view-mode)
       (let ((inhibit-read-only t))
 	(goto-char (point-min))
 	(mapcar
 	 #'(lambda (tweet-hashtable) (insert-tweet tweet-hashtable))
-	 tweet-list)
+	 sorted-tweet-list)
 	(if *dp-fetch-p* (fetch-beautiful-dp)))
 
       ;; Printing done; now switch to buffer and render ypanes
