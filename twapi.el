@@ -37,7 +37,7 @@
   (cdr (assoc buf-name *buffer-names-assoc*)))
 
 ;; Search Methods
-(defun twitter-search (search-term &optional since)
+(defun twitter-search (search-term &optional since-id)
   (twitter-request (concat "*search-" search-term "*")
 		   (twitter-url (format "%s" "search") t)
 		   "GET"
@@ -48,36 +48,36 @@
 		   (twitter-url (format "%s" "trends") t)
 		   "GET"))
 
-(defun twitter-trends-current (since)
+(defun twitter-trends-current (since-id)
   (twitter-request (build-buf-name-string 'trends-current)
 		   (twitter-url (format "%s/%s" "statuses" "user_timeline"))
 		   "GET"
-		   '(("since" since))))
+		   '(("since-id" since-id))))
 
-(defun twitter-trends-daily (since)
+(defun twitter-trends-daily (since-id)
   (twitter-request (build-buf-name-string 'trends-daily)
 		   (twitter-url (format "%s/%s" "statuses" "user_timeline"))
 		   "GET"
-		   '(("since" since))))
+		   '(("since-id" since-id))))
 
-(defun twitter-trends-weekly (since)
+(defun twitter-trends-weekly (since-id)
   (twitter-request (build-buf-name-string 'trends-weekly)
 		   (twitter-url (format "%s/%s" "statuses" "user_timeline"))
 		   "GET"
-		   '(("since" since))))
+		   '(("since-id" since-id))))
 
 ;; Timeline Methods
-(defun twitter-public-timeline (&optional since)
+(defun twitter-public-timeline (&optional since-id)
   (twitter-request (build-buf-name-string 'public)
 		   (twitter-url (format "%s/%s" "statuses" "public_timeline"))
 		   "GET"
-		   `(("since" . ,since))))
+		   `(("since-id" . ,(if (integerp since-id) (number-to-string since-id) "")))))
 
-(defun twitter-friends-timeline (&optional since)
+(defun twitter-friends-timeline (&optional since-id)
   (twitter-request (build-buf-name-string 'own)
 		   (twitter-url (format "%s/%s" "statuses" "friends_timeline"))
 		   "GET"
-		   `(("since" . ,since))))
+		   `(("since-id" . ,(if (integerp since-id) (number-to-string since-id) "")))))
 
 (defun twitter-user-timeline (&optional id user-id screen-name since-id max-id count page)
   (twitter-request (build-buf-name-string 'user)
@@ -91,11 +91,11 @@
 		     ("count" . ,count)
 		     ("page" . ,page))))
 
-(defun twitter-mentions (&optional since)
+(defun twitter-mentions (&optional since-id)
   (twitter-request (build-buf-name-string 'mentions)
 		   (twitter-url (format "%s/%s" "statuses" "mentions"))
 		   "GET"
-		   `(("since" . ,since))))
+		   `(("since-id" . ,(if (integerp since-id) (number-to-string since-id) "")))))
 
 ;; Status Methods
 (defun twitter-show-status (id)
@@ -103,10 +103,12 @@
   (twitter-request (twitter-url (format "%s/%s/%d" "statuses" "show" id))
 		   "GET"))
 
-(defun twitter-update-status (status)
-  (twitter-request (twitter-url (format "%s/%s" "statuses" "update"))
+(defun twitter-update-status (status &optional in-reply-to-status-id)
+  (twitter-request nil
+		   (twitter-url (format "%s/%s" "statuses" "update"))
 		   "POST"
-		   `(("status" . ,status))))
+		   `(("status" . ,status)
+		     ("in_reply_to_status_id" . ,(number-to-string in-reply-to-status-id)))))
 
 (defun twitter-show-status (id)
   (twitter-request (twitter-url (format "%s/%s/%d" "statuses" "destroy" id))
