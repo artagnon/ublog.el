@@ -55,6 +55,7 @@
 (defvar *ublog-token-file* "~/.ublog/token")
 
 (defvar *max-status-len* 140)
+(defvar *number-of-ypanes* 2)  ;; Number of ypanes
 
 ;; For storing local variables
 (defvar zbuffer-remaining-length ""
@@ -62,8 +63,6 @@
 (put 'zbuffer-remaining-length 'risky-local-variable t)
 (defvar zbuffer-overlay nil
   "Overlay used to highlight overlong status messages")
-(defvar number-of-ypanes)  ;; Number of ypanes
-(defvar ypanes-stack)    ;; For storing window objects of the panes
 
 ;; TODO: `artagnon' cannot be hardcoded here!
 (defvar *dp-cache-dir* "/home/artagnon/.ublog/dp-cache")
@@ -122,11 +121,12 @@
   (mapc #'(lambda (directory) (create-dir-noexist directory))
 	'("~/.ublog" "~/.ublog/dp-cache" "~/.ublog/tweet-cache"))
   (twitter-authenticate)
-  (refresh-timeline))
+  (build-ypanes '(twitter-friends-timeline twitter-mentions)
+		'(own mentions)))
 
 (defun refresh-timeline ()
   (interactive)
-  (twitter-friends-timeline))
+  (twitter-mentions))
 
 (defun update-status-minibuffer ()
   "Update status from the minibuffer"
@@ -203,14 +203,8 @@
 	mode-line-process "")
   (use-local-map timeline-view-mode-map)
   
-  ;; Tweetdeck-like ypanes
-  (make-local-variable 'number-of-ypanes)  ;; Number of ypanes
-  (make-local-variable 'ypanes-stack)      ;; For storing window objects of the panes
-  (setq number-of-ypanes 2)
-  (setq ypanes-stack nil)
-  
   (if *dp-fetch-p* (setf left-margin-width 6))
-  (setf fill-column (/ (window-width) number-of-ypanes))
+  (setf fill-column (1- (window-width)))
   (setf fringes-outside-margins t))
 
 (define-derived-mode zbuffer-mode text-mode "zBuffer"
@@ -345,7 +339,7 @@
 	  (if search-flag *twitter-search-host* *twitter-host*)
 	  *twitter-port* (or relative "")))
 
-(defun twitter-request (url http-method &optional parameters)
+(defun twitter-request (buf-name url http-method &optional parameters)
   "Use HTTP METHOD to request URL with some optional parameters"
   (oauth-url-retrieve *ublog-access-token*
 		      (concat url
@@ -477,16 +471,25 @@ character count on the mode line is updated."
 	(mapcar
 	 #'(lambda (tweet-hashtable) (insert-tweet tweet-hashtable))
 	 sorted-tweet-list)
-	(if *dp-fetch-p* (fetch-beautiful-dp)))
+	(if *dp-fetch-p* (fetch-beautiful-dp))))))
 
-      ;; Printing done; now switch to buffer and render ypanes
-      (switch-to-buffer timeline-buffer)
-  
-      ;; The ypanes code
-      (push (get-buffer-window) ypanes-stack)
-      (when (> number-of-ypanes 1)
-	;; Split the window
-	(push (split-window-horizontally fill-column) ypanes-stack)))))
+(defun build-ypanes (api-render-calls buf-names)
+  "Builds several timelines in different frames"
+  (let ((ypanes-stack nil))
+    (dotimes (ypanes-rendered (1- *number-of-ypanes*))
+      (push (selected-window) ypanes-stack)
+      (when (> *number-of-ypanes* 1)
+	(push (split-window-horizontally) ypanes-stack)))
+    (balance-windows)
+    (loop
+       for api-render-call in api-render-calls
+       for buf-name in buf-names
+       for window in (reverse ypanes-stack)
+       do
+	 (select-window window)
+	 (get-buffer-create (build-buf-name-string buf-name))
+	 (switch-to-buffer (build-buf-name-string buf-name))
+	 (funcall api-render-call))))
 
 (defun guess-image-type-extn (file-name)
   (cond
