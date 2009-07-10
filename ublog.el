@@ -56,6 +56,7 @@
 
 (defvar *max-status-len* 140)
 (defvar *number-of-ypanes* 2)  ;; Number of ypanes
+(defvar *since-id* nil)
 
 ;; For storing local variables
 (defvar zbuffer-remaining-length ""
@@ -123,12 +124,13 @@
   (mapc #'(lambda (directory) (create-dir-noexist directory))
 	'("~/.ublog" "~/.ublog/dp-cache" "~/.ublog/tweet-cache"))
   (twitter-authenticate)
-  (build-ypanes '(twitter-friends-timeline twitter-mentions)
-		'(own mentions)))
+  (refresh-timelines))
 
-(defun refresh-timeline ()
+(defun refresh-timelines ()
+  "Refreshes all timelines"
   (interactive)
-  (twitter-mentions))
+;;(build-ypanes `((twitter-friends-timeline ,*since-id*) (twitter-mentions ,*since-id*)) '(own mentions))
+  (twitter-mentions *since-id*))
 
 (defun update-status-minibuffer ()
   "Update status from the minibuffer"
@@ -469,6 +471,10 @@ character count on the mode line is updated."
 	 (sort tweet-list
 	       #'(lambda (tweet-1 tweet-2)
 		   (time-less-p (gethash 'timestamp tweet-1) (gethash 'timestamp tweet-2))))))
+    ;; Set the since-id
+    (setq *since-id* (gethash 'tweet-id (car (last sorted-tweet-list))))
+
+    ;; Now render the tweet
     (with-current-buffer timeline-buffer
       (timeline-view-mode)
       (let ((inhibit-read-only t))
@@ -494,7 +500,7 @@ character count on the mode line is updated."
 	 (select-window window)
 	 (get-buffer-create (build-buf-name-string buf-name))
 	 (switch-to-buffer (build-buf-name-string buf-name))
-	 (funcall api-render-call))))
+	 (apply (car api-render-call) (cdr api-render-call)))))
 
 (defun guess-image-type-extn (file-name)
   (cond
@@ -572,3 +578,4 @@ TIME should be a high/low pair as returned by encode-time."
                (format-time-string "Yesterday at %H:%M" time))
               (t
                (format-time-string "Last %A at %H:%M" time)))))))
+
