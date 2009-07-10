@@ -82,6 +82,14 @@
 	 (merged-hashtable (merge-hashtable tweet-hashtable user-hashtable)))
     (enrich-hashtable merged-hashtable)))
 
+(defun conversation-parser (tweet-id)
+  "Recursively parses in_reply_to to generate a conversation from a tweet-id"
+  (loop
+     do for tweet = (master-response-parser (twitter-show-status tweet-id))
+     for tweet-id = tweet-id then (gethash 'in-reply-to tweet)
+     while tweet-id
+     collecting tweet))
+
 (defun find-assoc (k)
   (let ((assoc-1 (assoc k *tweet-hashtable-select-keys*)))
     (if assoc-1
