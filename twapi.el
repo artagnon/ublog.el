@@ -27,44 +27,61 @@
   (list (cons 'own "*timeline*")
 	(cons 'user "*user-timeline*")
 	(cons 'public "*public-timeline*")
-	(cons 'search "*search*")
-	(cons 'mentions "*mentions*")))
+	(cons 'trends "*trends*")
+	(cons 'mentions "*mentions*")
+	(cons 'friends "*friends*")
+	(cons 'followers "*followers*")
+	(cons 'profile "*profile*")))
+
+(defun build-buf-name-string (buf-name)
+  (cdr (assoc buf-name *buffer-names-assoc*)))
 
 ;; Search Methods
 (defun twitter-search (search-term &optional since)
-  (twitter-request "GET" (twitter-url (format "%s" "search") t)
+  (twitter-request (concat "*search-" search-term "*")
+		   (twitter-url (format "%s" "search") t)
+		   "GET"
 		   `(("q" . ,search-term))))
 
 (defun twitter-trends ()
-  (twitter-request (twitter-url (format "%s" "trends") t)
+  (twitter-request (build-buf-name-string 'trends)
+		   (twitter-url (format "%s" "trends") t)
 		   "GET"))
 
 (defun twitter-trends-current (since)
-  (twitter-request (twitter-url (format "%s/%s" "statuses" "user_timeline"))
+  (twitter-request (build-buf-name-string 'trends-current)
+		   (twitter-url (format "%s/%s" "statuses" "user_timeline"))
 		   "GET"
 		   '(("since" since))))
 
 (defun twitter-trends-daily (since)
-  (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "user_timeline"))
+  (twitter-request (build-buf-name-string 'trends-daily)
+		   (twitter-url (format "%s/%s" "statuses" "user_timeline"))
+		   "GET"
 		   '(("since" since))))
 
 (defun twitter-trends-weekly (since)
-  (twitter-request "GET" (twitter-url (format "%s/%s" "statuses" "user_timeline"))
+  (twitter-request (build-buf-name-string 'trends-weekly)
+		   (twitter-url (format "%s/%s" "statuses" "user_timeline"))
+		   "GET"
 		   '(("since" since))))
 
 ;; Timeline Methods
 (defun twitter-public-timeline (&optional since)
-  (twitter-request (twitter-url (format "%s/%s" "statuses" "public_timeline"))
+  (twitter-request (build-buf-name-string 'public)
+		   (twitter-url (format "%s/%s" "statuses" "public_timeline"))
 		   "GET"
 		   `(("since" . ,since))))
 
 (defun twitter-friends-timeline (&optional since)
-  (twitter-request (twitter-url (format "%s/%s" "statuses" "friends_timeline"))
+  (twitter-request (build-buf-name-string 'own)
+		   (twitter-url (format "%s/%s" "statuses" "friends_timeline"))
 		   "GET"
 		   `(("since" . ,since))))
 
 (defun twitter-user-timeline (&optional id user-id screen-name since-id max-id count page)
-  (twitter-request (twitter-url (format "%s/%s" "statuses" "user_timeline"))
+  (twitter-request (build-buf-name-string 'user)
+		   (twitter-url (format "%s/%s" "statuses" "user_timeline"))
 		   "GET"
 		   `(("id" . ,id)
 		     ("user_id" . ,user-id)
@@ -75,12 +92,14 @@
 		     ("page" . ,page))))
 
 (defun twitter-mentions (&optional since)
-  (twitter-request (twitter-url (format "%s/%s" "statuses" "mentions"))
+  (twitter-request (build-buf-name-string 'mentions)
+		   (twitter-url (format "%s/%s" "statuses" "mentions"))
 		   "GET"
 		   `(("since" . ,since))))
 
 ;; Status Methods
 (defun twitter-show-status (id)
+  ;; Will this API call ever be used independently?
   (twitter-request (twitter-url (format "%s/%s/%d" "statuses" "show" id))
 		   "GET"))
 
@@ -95,17 +114,20 @@
 
 ;; User Methods
 (defun twitter-show-user (screen-name)
-  (twitter-request (twitter-url (format "%s/%s" "users" "show"))
+  (twitter-request (build-buf-name-string 'profile)
+		   (twitter-url (format "%s/%s" "users" "show"))
 		   "GET"
 		   `(("screen_name" . ,screen-name))))
 
 (defun twitter-show-friends (screen-name)
-  (twitter-request (twitter-url (format "%s/%s" "statuses" "friends"))
+  (twitter-request (build-buf-name-string 'friends)
+		   (twitter-url (format "%s/%s" "statuses" "friends"))
 		   "GET"
 		   `(("screen_name" . ,screen-name))))
 
 (defun twitter-show-followers (screen-name)
-  (twitter-request (twitter-url (format "%s/%s" "statuses" "followers"))
+  (twitter-request (build-buf-name-string 'followers)
+		   (twitter-url (format "%s/%s" "statuses" "followers"))
 		   "GET"
 		   `(("screen_name" . ,screen-name))))
 

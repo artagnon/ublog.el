@@ -28,17 +28,16 @@ Bugs and enhancement tasks
 ** It's in chronological order! Reverse it
 * DONE zbuffer-related functions
   CLOSED: [2009-07-08 Wed 13:31]
-* DEPENDS Implement since
-** Workflow refactor
+* IN-PROGRESS Implement since
 * STUCK Handle ^M characters in text
 ** Read up about newlines in different file formats
 * STUCK Namespace issue: Prefix function names with `ublog-'
 ** Find out a way to do it without too much pain
 * NEW hashtag-list in tweet footer
-* DEPENDS Conversation follower using recursive in_reply_to parser
-** Workflow refactor
-* DEPENDS Buffer names corresponding to different timelines
-** Workflow refactor
+* IN-PROGRESS Conversation follower using recursive in_reply_to parser
+* DONE Buffer names corresponding to different timelines
+  CLOSED: [2009-07-10 Fri 21:44]
+  - CLOSING NOTE [2009-07-10 Fri 21:44]
 * NEW Proxy configuration
 * WONTFIX Workflow refactor: Retrieve hashtables, not final outputs!
   CLOSED: [2009-07-10 Fri 12:38]
@@ -51,6 +50,17 @@ Bugs and enhancement tasks
   CLOSED: [2009-07-09 Thu 21:02]
   - CLOSING NOTE [2009-07-09 Thu 21:02] \\
     Confirm this by posting an update
-* DEPENDS twitter-update-status is calling render-timeline
-** Workflow refactor bug
-* NEW Wrapper to dump/ restore ypane frame configuration
+* DONE twitter-update-status is calling render-timeline
+  CLOSED: [2009-07-10 Fri 21:43]
+  - CLOSING NOTE [2009-07-10 Fri 21:43]
+** Pass the callback function that must be activated
+* DONE Wrapper to dump/ restore ypane frame configuration
+  CLOSED: [2009-07-10 Fri 21:43]
+  - CLOSING NOTE [2009-07-10 Fri 21:44] \\
+    Done. No persistance though. Maybe add a file in future to dump and load frame configs?
+* NEW Get in_reply_to_status_id working
+* DONE HTTP error handling
+  CLOSED: [2009-07-10 Fri 15:02]
+* NEW Synchronous component of url-retrieve in connecting to twitter.com everytime
+** Maintain connection to eliminate this
+* NEW Error in process-sentinel: Expected character, got :json-eof

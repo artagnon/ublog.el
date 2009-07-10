@@ -51,15 +51,9 @@
 ;; Twitter OAuth keys
 (defvar *ublog-consumer-key* "K9vrCLHpp5vuln72ROufzQ")
 (defvar *ublog-consumer-secret* "sUTgzZRgm0GCHQNYixFx3TS2D94TwaQv90gIXhTQNcE")
-
 (defvar *ublog-access-token* nil)
 (defvar *ublog-token-file* "~/.ublog/token")
 
-(defvar *buffer-names-assoc*
-  (list (cons 'own "*timeline*")
-	(cons 'user "*user-timeline*")
-	(cons 'search "*search*")
-	(cons 'mentions "*mentions*")))
 (defvar *max-status-len* 140)
 
 ;; For storing local variables
@@ -444,8 +438,8 @@ character count on the mode line is updated."
 			       screen-name))))
 
 (defun render-timeline (tweet-list buf-name)
-  "Renders a list of tweets"
-  (let ((timeline-buffer (get-buffer-create (cdr (assoc buf-name *buffer-names-assoc*))))
+  "Renders a list of tweets in the current-buffer"
+  (let ((timeline-buffer (get-buffer-create buf-name))
 	;; Sort the tweet-list reverse-chronologically first
 	(sorted-tweet-list
 	 (sort tweet-list
