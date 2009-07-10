@@ -395,16 +395,6 @@ character count on the mode line is updated."
     (when zbuffer-overlay
       (delete-overlay zbuffer-overlay))))
 
-(defun twitter-status-edit ()
-  "Edit your twitter status in a new buffer.
-A new buffer is popped up in a special edit mode. Press
-\\[twitter-status-post] when you are finished editing to send the
-message."
-  (setq twitter-frame-configuration (current-frame-configuration))
-  (interactive)
-  (pop-to-buffer "*Twitter Status*")
-  (twitter-status-edit-mode))
-
 (defun fill-line (apply-face &rest text)
   "Carefully fills region with text tracking point"
   (fill-region (prog1
