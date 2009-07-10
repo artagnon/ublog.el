@@ -138,7 +138,7 @@
   "Update status from the minibuffer"
   (interactive)
   (let ((status (read-string "Status: ")))
-       (twitter-update-status (url-hexify-string status))))
+       (twitter-update-status status)))
 
 (defun zbuffer-popout ()
   "Pops out a special zbuffer for editing tweets"
@@ -153,7 +153,7 @@
 (defun update-status-buffer-string ()
   "Update status with contents of current buffer"
   (interactive)
-  (twitter-update-status (url-hexify-string (buffer-string))))
+  (twitter-update-status (buffer-string) twitter-reply-status-id))
 
 (defun reply-to-this-tweet (pos)
   "Reply to tweet at point"

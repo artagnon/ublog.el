@@ -47,6 +47,10 @@ Bugs and enhancement tasks
 ** Ask on IRC
 * DONE With ybuffer, zbuffer uses one of the frames created by ybuffer
   CLOSED: [2009-07-09 Thu 20:28]
+* DONE Update status is url-hexifying update string
+  CLOSED: [2009-07-09 Thu 21:02]
+  - CLOSING NOTE [2009-07-09 Thu 21:02] \\
+    Confirm this by posting an update
 * DEPENDS twitter-update-status is calling render-timeline
 ** Workflow refactor bug
 * NEW Wrapper to dump/ restore ypane frame configuration
