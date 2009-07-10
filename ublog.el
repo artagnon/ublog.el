@@ -213,6 +213,7 @@
   (make-local-variable 'number-of-ypanes)  ;; Number of ypanes
   (make-local-variable 'ypanes-stack)      ;; For storing window objects of the panes
   (setq number-of-ypanes 2)
+  (setq ypanes-stack nil)
   
   (if *dp-fetch-p* (setf left-margin-width 6))
   (setf fill-column (/ (window-width) number-of-ypanes))
