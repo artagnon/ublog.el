@@ -351,7 +351,7 @@
 		      http-method
 		      (if (equal "GET" http-method)
 			  `(lambda (status) (render-http-callback status ,buf-name))
-			  '(lambda (status) (norender-http-callback)))))
+			  '(lambda (status) (norender-http-callback status)))))
 
 (defun make-screen-name-button (screen-name)
   "Inserts a link to screen-name into the current buffer"
