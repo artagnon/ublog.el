@@ -22,6 +22,14 @@
 
 (provide 'twapi)
 
+(defvar *buffer-names-assoc*
+  ;; Buffer name symbol <-> string mapper
+  (list (cons 'own "*timeline*")
+	(cons 'user "*user-timeline*")
+	(cons 'public "*public-timeline*")
+	(cons 'search "*search*")
+	(cons 'mentions "*mentions*")))
+
 ;; Search Methods
 (defun twitter-search (search-term &optional since)
   (twitter-request "GET" (twitter-url (format "%s" "search") t)

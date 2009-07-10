@@ -92,15 +92,13 @@
 	  (substring response-dump double-ret-marker)))
     (cons response-status response-body)))
 
-(defun error-status-p (error-list)
+(defun error-status-p (error-status)
   "Was an error encountered?"
-  ;; TODO: Unimplemented!
-  nil)
+  (eq :error (car error-status)))
 
-(defun error-status-to-string (error-list)
+(defun error-status-to-string (error-status)
   "Build error string"
-  ;; TODO: Unimplemented!
-  nil)
+  (second (second error-status)))
 
 (defmacro union (list-1 list-2)
   "Build a union of two lists"
