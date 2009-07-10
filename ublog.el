@@ -436,16 +436,22 @@ character count on the mode line is updated."
     (insert "\n")
     (when (or screen-name-list uri-list)
       (mapc #'(lambda (uri)
-		(insert (propertize
-			 (make-uri-button uri)
-			 'face 'tweet-link-face) " | "))
+		(fill-region (prog1
+				 (point)
+			       (insert (propertize (make-uri-button uri)
+						   'face 'tweet-link-face)
+				       " | "))
+			     (progn (backward-char) (point))))
 	    uri-list)
       (mapc #'(lambda (screen-name)
-		(insert (propertize
-			 (make-screen-name-button screen-name)
-			 'face 'tweet-link-face) " | "))
+		(fill-region (prog1
+				 (point)
+			       (insert (propertize (make-screen-name-button screen-name)
+						   'face 'tweet-link-face)
+				       " | "))
+			     (progn (backward-char) (point))))
 	    screen-name-list)
-      (backward-delete-char 3)  ;; Hack to remove the last ` | '
+      (backward-delete-char 3) ;; Hack to remove the last ` | '
       (insert "\n"))
     (insert "\n")
   
