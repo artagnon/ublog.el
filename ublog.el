@@ -246,25 +246,42 @@
 ;; Functions
 ;; =========
 
-(defun twitter-http-callback (status)
-  "Function gets called with current-buffer as the response dump of a HTTP request"
+(defun decode-http-response (status)
+  "Separate the header and body of the HTTP response"
   (if (error-status-p status)
       ;; What to do if an error has occured
       (error (message (error-status-to-string status)))
       (let* ((response-dump (buffer-string))
-	     (http-info (extract-http-info response-dump))
-	     (json-object-type 'hash-table))
-	(case-string (car http-info)
-		     (("200 OK")
-		      (message "Success"))
-		     (t
-		      (message status)))
-	(save-excursion
-	  (let ((parsed-object (json-read-from-string (cdr http-info))))
-	    ;; parsed-object is either a hashtable or a vector of hashtables
-	    (render-timeline
-	     (master-response-parser parsed-object) 'own)))
-	(kill-buffer))))
+	     (http-info (extract-http-info response-dump)))
+	http-info)))
+
+(defun render-http-callback (status buf-name)
+  "Rendering HTTP callback used for timeline fetches"
+  (let ((http-info (decode-http-response status))
+	(json-object-type 'hash-table))
+    (unless (null http-info)
+      (case-string (car http-info)
+		   (("200 OK")
+		    (message "Timeline fetched!"))
+		   (t
+		    (message status)))
+      (save-excursion
+	(let ((parsed-object (json-read-from-string (cdr http-info))))
+	  ;; parsed-object is either a hashtable or a vector of hashtables
+	  (render-timeline
+	   (master-response-parser parsed-object) buf-name)))))
+  (kill-buffer))
+
+(defun norender-http-callback (status)
+  "Non-rendering HTTP callback used for posting updates"
+  (let ((http-info (decode-http-response status)))
+    (unless (null http-info)
+      (case-string (car http-info)
+		   (("200 OK")
+		    (message "Status updated!"))
+		   (t
+		    (message status)))))
+  (kill-buffer))
 
 (defun create-dir-noexist (directory)
   (if (file-directory-p directory)
@@ -336,7 +353,9 @@
 			      *twitter-response-format*
 			      (if parameters (build-url-parameters parameters) ""))
 		      http-method
-		      'twitter-http-callback))
+		      (if (equal "GET" http-method)
+			  `(lambda (status) (render-http-callback status ,buf-name))
+			  '(lambda (status) (norender-http-callback)))))
 
 (defun make-screen-name-button (screen-name)
   "Inserts a link to screen-name into the current buffer"
