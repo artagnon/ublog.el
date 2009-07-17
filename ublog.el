@@ -428,7 +428,9 @@ character count on the mode line is updated."
 	(screen-name-list (gethash 'screen-name-list tweet))
 	(fav-p (gethash 'fav-p tweet))
 	(following-p (gethash 'following-p tweet)))
-    (when *dp-fetch-p* (insert-image (build-image-descriptor dp-url) nil 'left-margin))
+    (when *dp-fetch-p*
+      (let ((image-descriptor (build-image-descriptor dp-url)))
+	(when image-descriptor (insert-image image-descriptor nil 'left-margin))))
     (fill-line 'tweet-header-face screen-name " | " source " | " (format-twitter-time timestamp))
     (insert "\n")
     (fill-line 'tweet-text-face text)
