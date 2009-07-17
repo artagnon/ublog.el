@@ -1,5 +1,5 @@
-;;;; twapi.el -- Twitter API implementation library
-;;;; This file is part of Twitel (http://github.com/artagnon/twitel)
+;;;; api-twitter.el -- Twitter API implementation library
+;;;; This file is part of µblog.el (http://github.com/artagnon/ublog.el)
 
 ;; Copyright (C) 2009 Ramkumar R <artagnon@gmail.com>
 
@@ -20,7 +20,7 @@
 ;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 ;; Boston, MA 02110-1301, USA.
 
-(provide 'twapi)
+(provide 'api-twitter)
 
 (defvar *buffer-names-assoc*
   ;; Buffer name symbol <-> string mapper
