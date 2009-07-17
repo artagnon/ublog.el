@@ -459,9 +459,7 @@ character count on the mode line is updated."
 			 (list 'tweet-id
 			       tweet-id
 			       'tweet-author-screen-name
-			       screen-name
-			       'face
-			       (if following-p nil 'not-following-face)))))
+			       screen-name))))
 
 (defun render-timeline (tweet-list buf-name)
   "Renders a list of tweets in the current-buffer"
