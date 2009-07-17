@@ -3,7 +3,8 @@ For developers! Tracks development progress
 #+TODO: TODO IN-PROGRESS STUCK DEFERRED | DONE INVALID ABANDONED
 
 * Structure and file layout
-** twapi.el for standard Twitter API interfaces.
+** api-twitter.el for standard Twitter API interfaces.
+** api-laconica.el for standard Laconica API interfaces.
 ** twsuperapi.el for extra API interfaces. New ideas go here.
 ** ublog.el is the binder and UI. All display-related functions and keybindings go here.
 ** twhelper.el is a dump of some misc functions. Remove later.
