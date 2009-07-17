@@ -23,7 +23,7 @@
 (require 'json)
 (require 'url)
 (require 'twparse)
-(require 'twapi)
+(require 'api-twitter)
 (require 'twhelper)
 (require 'oauth)
 
@@ -55,7 +55,6 @@
 (defvar *ublog-token-file* "~/.ublog/token")
 
 (defvar *max-status-len* 140)
-(defvar *number-of-ypanes* 2)  ;; Number of ypanes
 (defvar *since-id* nil)
 
 ;; For storing local variables
@@ -67,15 +66,15 @@
 
 ;; TODO: `artagnon' cannot be hardcoded here!
 (defvar *dp-cache-dir* "/home/artagnon/.ublog/dp-cache")
-(defvar *dp-fetch-p* nil)
+(defvar *dp-fetch-p* t)
 (defvar *dp-fetch-queue* '())
 (defvar *frame-config-view* nil)
 (defvar *dp-resize-size* 48)
 (defvar *wget-executable-path* "wget")
 (defvar *composite-executable-path* "composite")
-(defvar *composite-executable-path* "convert")
+(defvar *convert-executable-path* "convert")
 (defvar *image-mask-path* "round_mask_48.png")
-(defvar *round-cornors-p* nil)
+(defvar *round-corners-p* t)
 
 ;; Faces
 (defface exceed-warn-face
@@ -129,7 +128,6 @@
 (defun refresh-timelines ()
   "Refreshes all timelines"
   (interactive)
-;;(build-ypanes `((twitter-friends-timeline ,*since-id*) (twitter-mentions ,*since-id*)) '(own mentions))
   (twitter-mentions *since-id*))
 
 (defun update-status-minibuffer ()
@@ -142,10 +140,7 @@
   "Pops out a special zbuffer for editing tweets"
   (setq twitter-frame-configuration (current-frame-configuration))
   (interactive)
-  (select-window
-   (split-window-vertically
-    (- (+ 3 (/ *max-status-len* (window-width))))))
-  (switch-to-buffer "*zbuffer*")
+  (pop-to-buffer "*zbuffer*")
   (zbuffer-mode))
 
 (defun update-status-buffer-string ()
@@ -208,7 +203,6 @@
   (use-local-map timeline-view-mode-map)
   
   (if *dp-fetch-p* (setf left-margin-width 6))
-  (setf fill-column (1- (window-width)))
   (setf fringes-outside-margins t))
 
 (define-derived-mode zbuffer-mode text-mode "zBuffer"
@@ -482,25 +476,7 @@ character count on the mode line is updated."
 	(mapcar
 	 #'(lambda (tweet-hashtable) (insert-tweet tweet-hashtable))
 	 sorted-tweet-list)
-	(if *dp-fetch-p* (fetch-beautiful-dp))))))
-
-(defun build-ypanes (api-render-calls buf-names)
-  "Builds several timelines in different frames"
-  (let ((ypanes-stack nil))
-    (dotimes (ypanes-rendered (1- *number-of-ypanes*))
-      (push (selected-window) ypanes-stack)
-      (when (> *number-of-ypanes* 1)
-	(push (split-window-horizontally) ypanes-stack)))
-    (balance-windows)
-    (loop
-       for api-render-call in api-render-calls
-       for buf-name in buf-names
-       for window in (reverse ypanes-stack)
-       do
-	 (select-window window)
-	 (get-buffer-create (build-buf-name-string buf-name))
-	 (switch-to-buffer (build-buf-name-string buf-name))
-	 (apply (car api-render-call) (cdr api-render-call)))))
+	(if *dp-fetch-p* (fetch-beautify-dp))))))
 
 (defun guess-image-type-extn (file-name)
   (cond

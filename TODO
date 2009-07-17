@@ -64,3 +64,8 @@ Bugs and enhancement tasks
 * NEW Synchronous component of url-retrieve in connecting to twitter.com everytime
 ** Maintain connection to eliminate this
 * NEW Error in process-sentinel: Expected character, got :json-eof
+** Happens when the url wasn't retrieved completely
+* DONE Remove ypanes: Bad feature!
+  CLOSED: [2009-07-17 Fri 16:02]
+  - CLOSING NOTE [2009-07-17 Fri 16:03] \\
+    ypanes is against the Emacs philosophy. Removed.
