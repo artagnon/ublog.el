@@ -555,3 +555,4 @@ TIME should be a high/low pair as returned by encode-time."
               (t
                (format-time-string "Last %A at %H:%M" time)))))))
 
+(provide 'ublog)
