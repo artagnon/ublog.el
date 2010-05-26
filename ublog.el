@@ -32,10 +32,9 @@
 ;; ================
 
 ;; Configuration constants
-(defvar *twitter-host* "twitter.com")
+(defvar *twitter-host* "api.twitter.com")
 (defvar *twitter-search-host* "search.twitter.com")
 (defvar *twitter-response-format* "json")
-(defvar *twitter-port* 80)
 
 ;; Proxy configuration
 ;; TODO: Unimplemented!
@@ -335,9 +334,9 @@
 
 (defun twitter-url (&optional relative search-flag)
   "Generate a Twitter URL with an optional relative"
-  (format "http://%s:%d/%s"
+  (format "http://%s/1/%s"
 	  (if search-flag *twitter-search-host* *twitter-host*)
-	  *twitter-port* (or relative "")))
+	  (or relative "")))
 
 (defun twitter-request (buf-name url http-method &optional parameters)
   "Use HTTP METHOD to request URL with some optional parameters"
