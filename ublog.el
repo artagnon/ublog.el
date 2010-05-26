@@ -242,7 +242,9 @@
   "Separate the header and body of the HTTP response"
   (if (error-status-p status)
       ;; What to do if an error has occured
-      (error (message (error-status-to-string status)))
+      (progn
+	(message "%s" (error-message-string (second status)))
+	nil)
       (let* ((response-dump (buffer-string))
 	     (http-info (extract-http-info response-dump)))
 	http-info)))

@@ -96,10 +96,6 @@
   "Was an error encountered?"
   (eq :error (car error-status)))
 
-(defun error-status-to-string (error-status)
-  "Build error string"
-  (second (second error-status)))
-
 (defmacro union (list-1 list-2)
   "Build a union of two lists"
   (delete-dups (append list-1 list-2)))
