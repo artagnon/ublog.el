@@ -13,8 +13,8 @@ Lisp. Twitter implemented. Laconica support expected in future.
 ## Usage
 * git clone git://github.com/artagnon/ublog.el
 * Put the ublog.el directory in your Emacs loadpath
-* Put (require 'ublog) in your Emacs config file
-* M-x twitter-init and switch to the *timeline* buffer to see the updates
+* Put `(require 'ublog)` in your Emacs config file
+* `M-x twitter-init` and switch to the `*timeline*` buffer to see the updates
 * Read the list of keybindings in the ublog.el file
 
 ## For developers
