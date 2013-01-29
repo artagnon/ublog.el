@@ -63,8 +63,7 @@
 (defvar zbuffer-overlay nil
   "Overlay used to highlight overlong status messages")
 
-;; TODO: `artagnon' cannot be hardcoded here!
-(defvar *dp-cache-dir* "/home/artagnon/.ublog/dp-cache")
+(defvar *dp-cache-dir* "~/.ublog/dp-cache")
 (defvar *dp-fetch-p* t)
 (defvar *dp-fetch-queue* '())
 (defvar *frame-config-view* nil)
